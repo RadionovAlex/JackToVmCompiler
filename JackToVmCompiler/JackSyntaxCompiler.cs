@@ -1,4 +1,5 @@
-﻿using JackToVmCompiler.Tokenizer;
+﻿using JackToVmCompiler.CompilationEngine;
+using JackToVmCompiler.Tokenizer;
 using JackToVmCompiler.Utils;
 
 namespace JackToVmCompiler
@@ -48,12 +49,6 @@ namespace JackToVmCompiler
 
             await Task.WhenAll(tasks.ToArray());
             return tasks.All(x => x.Result);
-            /*foreach(var jackFilePath in _jackFilePathes)
-            {
-                var text = await File.ReadAllTextAsync(jackFilePath);
-            }
-
-            return true;*/
         }
 
         private async Task<bool> CompileFile(string path)
@@ -63,16 +58,29 @@ namespace JackToVmCompiler
                 var text = await File.ReadAllTextAsync(path);
                 var cleanLines = TextUtils.ClearTextFromSpacesAndComments(text);
                 var tokenizer = new JackTokenizer(cleanLines);
+                var compilationEngine = new XmlCompilationEngine(path, tokenizer);
+                compilationEngine.Compile();
 
+                /*while (tokenizer.HasMoreTokens())
+                {
+                    tokenizer.Next();
+                    var tokenType = tokenizer.GetTokenType();
+                    if(tokenType == TokenType.KeyWord)
+                    {
 
-                var pathDirectory = Path.GetDirectoryName(path);
+                    }
+
+                }*/
+                
+
+               /* var pathDirectory = Path.GetDirectoryName(path);
                 
                 var fileName = Path.GetFileNameWithoutExtension(path);
                 var newPath = $"{Path.Combine(pathDirectory, fileName)}.xml";
                 var newTestPath = $"{Path.Combine(pathDirectory, fileName)}.tokens";
 
                 await File.WriteAllLinesAsync(newPath, cleanLines);
-                await File.WriteAllLinesAsync(newTestPath, tokenizer.Tokens);
+                await File.WriteAllLinesAsync(newTestPath, tokenizer.Tokens);*/
 
                 return true;
             }

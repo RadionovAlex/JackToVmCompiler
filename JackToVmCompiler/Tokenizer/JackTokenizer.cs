@@ -12,6 +12,7 @@
         {
             _originalLines = textLines;
             _tokens = new List<string>();
+            _currentIndex = -1;
 
             SplitLinesOnTokens();
         }
@@ -20,13 +21,29 @@
 
         public bool HasMoreTokens() =>
             _currentIndex < _originalLines.Count - 1;
-        
+
+        public string CurrentToken => _tokens[_currentIndex];
+        public string NextToken => _tokens[_currentIndex + 1];
+
+        public int TokensUntil(string untilToken)
+        {
+            var tempIndex = _currentIndex;
+            while(tempIndex < _tokens.Count && _tokens[tempIndex] != untilToken)
+            {
+                tempIndex++;
+            }
+
+            return tempIndex - _currentIndex;
+        }
+
 
         public void Next()
         {
             _currentIndex++;
             _currentToken = _tokens[_currentIndex];
         }
+
+        
 
         public TokenType GetTokenType()
         {
