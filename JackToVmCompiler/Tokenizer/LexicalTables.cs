@@ -34,14 +34,38 @@ namespace JackToVmCompiler.Tokenizer
             { "this", KeyWordType.This }
         };
 
+        public static readonly Dictionary<string, KeyWordType> ConstantKeyWordMap = new Dictionary<string, KeyWordType>()
+        {
+            { "true", KeyWordType.True },
+            { "false", KeyWordType.False },
+            { "null", KeyWordType.Null },
+            { "this", KeyWordType.This }
+        };
+
         public static readonly HashSet<char> SymbolsTable = new HashSet<char>()
         {
             '{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', '|', '<', '>', '=', '~'
         };
 
+        public static readonly HashSet<char> OperatorsTable = new HashSet<char>()
+        {
+          '+', '-', '*', '/', '&', '|', '<', '>', '='
+        };
+
+        public static readonly HashSet<char> UnaryOperators = new HashSet<char>()
+        {
+            '-','~'
+        };
+
+        public static bool IsOperator(char value) => OperatorsTable.Contains(value);
+
+        public static bool IsUnaryOperator(char value) =>OperatorsTable.Contains(value);
+
         public static bool IsKeyword (string value) => KeywordsMap.ContainsKey(value);
 
         public static bool IsSymbol(string value) => value.Length == 1 && SymbolsTable.Contains(value[0]);
+
+        public static bool IsConstantKeyWord(string value) => ConstantKeyWordMap.ContainsKey(value);
 
         public static bool IsStringConstant (string value) => StringConstantRegex.Match(value).Success;
 

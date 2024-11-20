@@ -18,6 +18,8 @@ namespace JackToVmCompiler.Tokenizer
             return isValid;
         }
 
+        public static bool IsValidProcedureTypeKeyWorkd(KeyWordType keyword) => keyword == KeyWordType.Void;
+
         public static bool IsVariableDeclarationKeyWord(KeyWordType keyword)
         {
             var isVariableDeclaration = false;

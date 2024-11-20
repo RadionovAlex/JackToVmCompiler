@@ -17,10 +17,17 @@
         /// </summary>
         void CompileSubroutine();
 
+        void CompileSubroutineCall();
+
         /// <summary>
         /// Compiles a (possible empty) parameter list, not including the enclosing "()"
         /// </summary>
         void CompileParameterList();
+
+        /// <summary>
+        /// Compiles a parameter
+        /// </summary>
+        void CompileParameter();
 
         /// <summary>
         /// Compiles a var delaration
