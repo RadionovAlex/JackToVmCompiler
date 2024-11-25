@@ -63,6 +63,11 @@ namespace JackToVmCompiler.Tokenizer
           '+', '-', '*', '/', '&', '|', '<', '>', '='
         };
 
+        public static readonly HashSet<string> OperatorsTableString = new HashSet<string>()
+        {
+          "+", "-", "*", "/", "&", "|", "<", ">", "="
+        };
+
         public static readonly HashSet<char> UnaryOperators = new HashSet<char>()
         {
             '-','~'

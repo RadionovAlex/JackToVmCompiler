@@ -287,10 +287,9 @@ namespace JackToVmCompiler.CompilationEngine
             _tokenizer.Next();
             CompileTerm();
 
-            while(_tokenizer.GetTokenType() == TokenType.Symbol && LexicalTables.OperatorsTable.Contains(_tokenizer.GetSymbol()))
+            while(LexicalTables.OperatorsTableString.Contains(NextToken))
             {
                 AppendWithOffset(CurrentOperatorMarkUp);
-                _tokenizer.Next();
                 CompileTerm();
             }
 
@@ -433,6 +432,8 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset("<term>\n");
             _currentOffsetTabs++;
 
+            _tokenizer.Next();
+
             if (LexicalTables.IsIntegerConstant(CurrentToken))
             {
                 AppendWithOffset(CurrentIntegerConstant);
@@ -449,7 +450,6 @@ namespace JackToVmCompiler.CompilationEngine
                 && LexicalTables.IsUnaryOperator(_tokenizer.GetSymbol()))
             {
                 AppendWithOffset(CurrentUnaryOperatorMarkUp);
-                _tokenizer.Next();
                 CompileTerm();
             }
             else if(NextToken == LexicalTables.OpenSquareBracket)
@@ -501,7 +501,6 @@ namespace JackToVmCompiler.CompilationEngine
                     break;
                 case "(":
                     AppendWithOffset(CurrentSubroutineName);
-                    _tokenizer.Next();
                     CompileExpressionList();
                     break;
                 default:
