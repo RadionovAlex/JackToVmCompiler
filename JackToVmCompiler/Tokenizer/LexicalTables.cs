@@ -4,6 +4,17 @@ namespace JackToVmCompiler.Tokenizer
 {
     public static class LexicalTables
     {
+        public const string OpenSquareBracket = "[";
+        public const string CloseSquareBracket = "]";
+        public const string OpenParenthesis = "(";
+        public const string CloseParenthesis = ")";
+        public const string OpenBracket = "{";
+        public const string CloseBracket = "}";
+        public const string Coma = ",";
+        public const string Dot = ".";
+        public const string ComaAndDot = ";";
+        public const string Equal = "=";
+
         private static readonly Regex StringConstantRegex = new Regex("\"[^\n\"]*\"");
         private static readonly Regex IdentifierRegex = new Regex("[a-zA-Z_][a-zA-Z0-9_]*");
         private static readonly Regex IntegerConstantRegex = new Regex("^[0-9]+$");

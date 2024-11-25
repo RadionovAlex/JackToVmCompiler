@@ -136,10 +136,10 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset(GetTypeMarkUp(_tokenizer.CurrentToken));
 
             _tokenizer.Next();
-            while(CurrentToken != ";")
+            while(CurrentToken != LexicalTables.ComaAndDot)
             {
                 tokenType = _tokenizer.GetTokenType();
-                if (tokenType == TokenType.Symbol && CurrentToken == ",")
+                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
                     AppendWithOffset(CurrentSymbolMarkUp);
                 else if (tokenType == TokenType.Identifier)
                     AppendWithOffset(CurrentVarNameMarkUp);
@@ -171,7 +171,7 @@ namespace JackToVmCompiler.CompilationEngine
 
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
-            if (tokenType != TokenType.Symbol || CurrentToken != "{")
+            if (tokenType != TokenType.Symbol || CurrentToken != LexicalTables.OpenBracket)
                 throw new Exception("Expected open bracket { of procedure ");
 
             CompileSubroutineBody();
@@ -220,7 +220,7 @@ namespace JackToVmCompiler.CompilationEngine
             while (CurrentToken != ";")
             {
                 tokenType = _tokenizer.GetTokenType();
-                if (tokenType == TokenType.Symbol && CurrentToken == ",")
+                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
                     AppendWithOffset(CurrentSymbolMarkUp);
                 else if (tokenType == TokenType.Identifier)
                     AppendWithOffset(CurrentVarNameMarkUp);
@@ -240,7 +240,7 @@ namespace JackToVmCompiler.CompilationEngine
             _currentOffsetTabs++;
             _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
-            if (tokenType != TokenType.Symbol && CurrentToken != "(")
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenParenthesis)
                 throw new Exception("Expected open parameters list brackets");
 
             AppendWithOffset(CurrentSymbolMarkUp);
@@ -305,7 +305,30 @@ namespace JackToVmCompiler.CompilationEngine
 
         public void CompileExpressionList()
         {
-            throw new NotImplementedException();
+            AppendWithOffset("<expressionList>\n");
+            _currentOffsetTabs++;
+
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception($"Expected {LexicalTables.OpenParenthesis} in expressionList");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            while(NextToken != LexicalTables.CloseParenthesis)
+            {
+                CompileExpression();
+                if(NextToken == LexicalTables.Coma)
+                {
+                    _tokenizer.Next();
+                    AppendWithOffset(CurrentSymbolMarkUp);
+                }
+            }
+
+            _tokenizer.Next();
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            _currentOffsetTabs--;
+            AppendWithOffset("</expression>\n");
         }
 
         public void CompileIf()
@@ -328,20 +351,20 @@ namespace JackToVmCompiler.CompilationEngine
 
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
-            if(tokenType != TokenType.Symbol && CurrentToken != "=")
+            if(tokenType != TokenType.Symbol && CurrentToken != LexicalTables.Equal)
             {
-                if (CurrentToken != "[")
-                    throw new Exception("Expected open square bracket [");
+                if (CurrentToken != LexicalTables.OpenSquareBracket)
+                    throw new Exception($"Expected {LexicalTables.OpenSquareBracket}");
                 AppendWithOffset(CurrentSymbolMarkUp);
                 CompileExpression();
-                if (CurrentToken != "]")
-                    throw new Exception("Expected close square bracket [");
+                if (CurrentToken != LexicalTables.CloseSquareBracket)
+                    throw new Exception($"Expected {LexicalTables.CloseSquareBracket}");
                 AppendWithOffset(CurrentSymbolMarkUp);
             }
 
             _tokenizer.Next();
-            if (CurrentToken != "=")
-                throw new Exception("Excpected = in let statement");
+            if (CurrentToken != LexicalTables.Equal)
+                throw new Exception($"Excpected {LexicalTables.Equal} in let statement");
 
             AppendWithOffset(CurrentSymbolMarkUp);
 
@@ -362,7 +385,7 @@ namespace JackToVmCompiler.CompilationEngine
             _currentOffsetTabs++;
 
             _tokenizer.Next();
-            while(_tokenizer.GetTokenType() != TokenType.Symbol && CurrentToken != "}")
+            while(_tokenizer.GetTokenType() != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
             {
                 CompileStatement();
                 _tokenizer.Next();
@@ -417,7 +440,7 @@ namespace JackToVmCompiler.CompilationEngine
             {
                 AppendWithOffset(CurrentKeyWordConstant);
             }
-            else if(NextToken == "[")
+            else if(NextToken == LexicalTables.OpenSquareBracket)
             {
                 AppendWithOffset(CurrentVarNameMarkUp);
                 _tokenizer.Next();
@@ -427,14 +450,14 @@ namespace JackToVmCompiler.CompilationEngine
                 _tokenizer.Next();
                 AppendWithOffset(CurrentSymbolMarkUp);
             }
-            else if (CurrentToken == "(")
+            else if (CurrentToken == LexicalTables.OpenParenthesis)
             {
                 AppendWithOffset(CurrentSymbolMarkUp);
                 CompileExpression();
                 _tokenizer.Next();
                 AppendWithOffset(CurrentSymbolMarkUp);
             }
-            else if(NextToken == "(")
+            else if(NextToken == LexicalTables.OpenParenthesis || NextToken == LexicalTables.Dot)
             {
                 CompileSubroutineCall();
             }
@@ -449,8 +472,28 @@ namespace JackToVmCompiler.CompilationEngine
         {
             AppendWithOffset("<subroutineCall>\n");
             _currentOffsetTabs++;
+            switch (NextToken)
+            {
+                case ".":
+                    AppendWithOffset(CurrentVarNameMarkUp); // todo: or class name
+                    _tokenizer.Next();
+                    AppendWithOffset(CurrentSymbolMarkUp);
+                    _tokenizer.Next();
+                    AppendWithOffset(CurrentSubroutineName);
+                    _tokenizer.Next();
+                    if (CurrentToken != LexicalTables.OpenParenthesis)
+                        throw new Exception("Expected (");
+                    CompileExpressionList();
+                    break;
+                case "(":
+                    AppendWithOffset(CurrentSubroutineName);
+                    _tokenizer.Next();
+                    CompileExpressionList();
+                    break;
+                default:
+                    throw new Exception("Expected . or ( in subroutine call");
 
-
+            }
 
             _currentOffsetTabs--;
             AppendWithOffset("</subroutineCall>\n");
