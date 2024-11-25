@@ -70,7 +70,7 @@ namespace JackToVmCompiler.Tokenizer
 
         public static bool IsOperator(char value) => OperatorsTable.Contains(value);
 
-        public static bool IsUnaryOperator(char value) =>OperatorsTable.Contains(value);
+        public static bool IsUnaryOperator(char value) => OperatorsTable.Contains(value);
 
         public static bool IsKeyword (string value) => KeywordsMap.ContainsKey(value);
 

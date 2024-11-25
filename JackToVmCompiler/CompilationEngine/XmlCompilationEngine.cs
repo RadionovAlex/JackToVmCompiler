@@ -79,7 +79,7 @@ namespace JackToVmCompiler.CompilationEngine
 
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
-            if (tokenType != TokenType.Symbol || _tokenizer.CurrentToken != "{")
+            if (tokenType != TokenType.Symbol || _tokenizer.CurrentToken != LexicalTables.OpenBracket)
                 throw new Exception($"Expected class open brackets, but got {tokenType}, {_tokenizer.CurrentToken}");
 
             AppendWithOffset(CurrentSymbolMarkUp);
@@ -87,7 +87,7 @@ namespace JackToVmCompiler.CompilationEngine
             var subroutineDeclarationExists = false;
             _tokenizer.Next();
 
-            while(_tokenizer.GetTokenType() != TokenType.Symbol && _tokenizer.GetSymbol() != '}')
+            while(_tokenizer.GetTokenType() != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
             {
                 if (_tokenizer.GetTokenType() != TokenType.KeyWord)
                     throw new Exception($"Expected keywords in class declaration, but got: {_tokenizer.GetTokenType()} ");
@@ -279,11 +279,6 @@ namespace JackToVmCompiler.CompilationEngine
 
         }
 
-        public void CompileDo()
-        {
-            throw new NotImplementedException();
-        }
-
         public void CompileExpression()
         {
             AppendWithOffset("<expression>\n");
@@ -331,14 +326,9 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset("</expression>\n");
         }
 
-        public void CompileIf()
-        {
-            throw new NotImplementedException();
-        }
-
         public void CompileLet()
         {
-            AppendWithOffset("<statements>\n");
+            AppendWithOffset("<letStatement>\n");
             _currentOffsetTabs++;
 
             AppendWithOffset(CurrentKeyWordMarkUp);
@@ -371,7 +361,22 @@ namespace JackToVmCompiler.CompilationEngine
             CompileExpression();
 
             _currentOffsetTabs--;
-            AppendWithOffset("</statements>\n");
+            AppendWithOffset("</letStatement>\n");
+        }
+
+        public void CompileIf()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CompileWhile()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CompileDo()
+        {
+            throw new NotImplementedException();
         }
 
         public void CompileReturn()
@@ -440,6 +445,13 @@ namespace JackToVmCompiler.CompilationEngine
             {
                 AppendWithOffset(CurrentKeyWordConstant);
             }
+            else if(_tokenizer.GetTokenType() == TokenType.Symbol 
+                && LexicalTables.IsUnaryOperator(_tokenizer.GetSymbol()))
+            {
+                AppendWithOffset(CurrentUnaryOperatorMarkUp);
+                _tokenizer.Next();
+                CompileTerm();
+            }
             else if(NextToken == LexicalTables.OpenSquareBracket)
             {
                 AppendWithOffset(CurrentVarNameMarkUp);
@@ -461,8 +473,10 @@ namespace JackToVmCompiler.CompilationEngine
             {
                 CompileSubroutineCall();
             }
-                 // else if(unaryOp term)
-                // else if(VariableName)
+            else if(_tokenizer.GetTokenType() == TokenType.Identifier)
+            {
+                AppendWithOffset(CurrentVarNameMarkUp);
+            }
 
             _currentOffsetTabs--;
             AppendWithOffset("</term>\n");
@@ -499,11 +513,7 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset("</subroutineCall>\n");
         }
 
-        public void CompileWhile()
-        {
-            throw new NotImplementedException();
-        }
-
+      
         private void AppendWithOffset(string markUp)
         {
             _sb.Append(Offset);
