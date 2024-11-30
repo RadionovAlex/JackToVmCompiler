@@ -167,6 +167,12 @@ namespace JackToVmCompiler.CompilationEngine
                 throw new Exception($"Expected var type as void, but {_tokenizer.GetKeyWordType()}");
             AppendWithOffset(GetTypeMarkUp(_tokenizer.CurrentToken));
 
+            _tokenizer.Next();
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Identifier)
+                throw new Exception("Expected identifier as name of function");
+            AppendWithOffset(CurrentSubroutineName);
+
             CompileParameterList();
 
             _tokenizer.Next();
@@ -186,12 +192,9 @@ namespace JackToVmCompiler.CompilationEngine
             _currentOffsetTabs++;
             AppendWithOffset(CurrentSymbolMarkUp);
 
-            _tokenizer.Next();
-
-            while (_tokenizer.GetTokenType() == TokenType.KeyWord && CurrentToken == "var")
+            while (NextToken == "var")
             {
                 CompileVarDec();
-                _tokenizer.Next();
             }
 
             CompileStatements();
@@ -206,14 +209,15 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset("<varDec>\n");
             _currentOffsetTabs++;
 
+            _tokenizer.Next();
             AppendWithOffset(CurrentKeyWordMarkUp);
             _tokenizer.Next();
 
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord && tokenType != TokenType.Identifier)
                 throw new Exception("Expected keyword or iendifier");
-            if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidProcedureTypeKeyWorkd(_tokenizer.GetKeyWordType()))
-                throw new Exception($"Expected var type as void, but {_tokenizer.GetKeyWordType()}");
+            if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidVariableKeyWord(_tokenizer.GetKeyWordType()))
+                throw new Exception($"Expected variableKeyWord but got: {_tokenizer.GetKeyWordType()}");
             AppendWithOffset(GetTypeMarkUp(_tokenizer.CurrentToken));
 
             _tokenizer.Next();
@@ -231,7 +235,7 @@ namespace JackToVmCompiler.CompilationEngine
 
 
             _currentOffsetTabs--;
-            AppendWithOffset("</varDec>");
+            AppendWithOffset("</varDec>\n");
         }
 
         public void CompileParameterList()
@@ -244,13 +248,24 @@ namespace JackToVmCompiler.CompilationEngine
                 throw new Exception("Expected open parameters list brackets");
 
             AppendWithOffset(CurrentSymbolMarkUp);
-
-
-            while (CurrentToken != ")")
+            if(NextToken != LexicalTables.CloseParenthesis)
             {
-                CompileParameter();
+                while (CurrentToken != LexicalTables.CloseParenthesis)
+                {
+                    CompileParameter();
+                    _tokenizer.Next();
+                    if (_tokenizer.GetTokenType() == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
+                    {
+                        AppendWithOffset(CurrentSymbolMarkUp);
+                        _tokenizer.Next();
+                    }
+                }
+            }
+            else
+            {
                 _tokenizer.Next();
             }
+            
                 
             AppendWithOffset(CurrentSymbolMarkUp);
 
@@ -284,7 +299,6 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset("<expression>\n");
             _currentOffsetTabs++;
 
-            _tokenizer.Next();
             CompileTerm();
 
             while(LexicalTables.OperatorsTableString.Contains(NextToken))
@@ -322,7 +336,7 @@ namespace JackToVmCompiler.CompilationEngine
             AppendWithOffset(CurrentSymbolMarkUp);
 
             _currentOffsetTabs--;
-            AppendWithOffset("</expression>\n");
+            AppendWithOffset("</expressionList>\n");
         }
 
         public void CompileLet()
@@ -349,11 +363,11 @@ namespace JackToVmCompiler.CompilationEngine
                 if (CurrentToken != LexicalTables.CloseSquareBracket)
                     throw new Exception($"Expected {LexicalTables.CloseSquareBracket}");
                 AppendWithOffset(CurrentSymbolMarkUp);
+                _tokenizer.Next();
             }
-
-            _tokenizer.Next();
+            
             if (CurrentToken != LexicalTables.Equal)
-                throw new Exception($"Excpected {LexicalTables.Equal} in let statement");
+                throw new Exception($"Expected {LexicalTables.Equal} in let statement");
 
             AppendWithOffset(CurrentSymbolMarkUp);
 
@@ -397,7 +411,7 @@ namespace JackToVmCompiler.CompilationEngine
 
             AppendWithOffset(CurrentSymbolMarkUp);
             _currentOffsetTabs--;
-            AppendWithOffset("</statements>");
+            AppendWithOffset("</statements>\n");
         }
 
         private void CompileStatement()
@@ -494,9 +508,6 @@ namespace JackToVmCompiler.CompilationEngine
                     AppendWithOffset(CurrentSymbolMarkUp);
                     _tokenizer.Next();
                     AppendWithOffset(CurrentSubroutineName);
-                    _tokenizer.Next();
-                    if (CurrentToken != LexicalTables.OpenParenthesis)
-                        throw new Exception("Expected (");
                     CompileExpressionList();
                     break;
                 case "(":
@@ -520,42 +531,39 @@ namespace JackToVmCompiler.CompilationEngine
         }
 
         private string CurrentSubroutineName => 
-            $"<subroutineName> {_tokenizer.CurrentToken} </subroutineName>";
+            $"<subroutineName> {CurrentToken} </subroutineName>\n";
 
         private string CurrentClassName =>
-            $"<className> {_tokenizer.CurrentToken} </className>";
+            $"<className> {CurrentToken} </className>\n";
         private string GetTypeMarkUp(string value) =>
             $"<type> {value} </type>\n";
 
         private string CurrentOperatorMarkUp =>
-            $"<op> {_tokenizer.GetSymbol()} </op>";
+            $"<op> {_tokenizer.GetSymbol()} </op>\n";
 
         private string CurrentUnaryOperatorMarkUp =>
-            $"<unaryOp> {_tokenizer.GetSymbol()} </unaryOp>";
+            $"<unaryOp> {_tokenizer.GetSymbol()} </unaryOp>\n";
 
         private string CurrentIntegerConstant =>
-            $"<integerConstant> {CurrentToken} </integerConstant>";
+            $"<integerConstant> {CurrentToken} </integerConstant>\n";
 
         private string CurrentStringConstant =>
-            $"<StringConstant> {CurrentToken} </StringConstant>";
+            $"<StringConstant> {CurrentToken} </StringConstant\n>";
 
         private string CurrentKeyWordConstant => 
-            $"<KeywordConstant> {CurrentToken} </KeywordConstant>";
+            $"<KeywordConstant> {CurrentToken} </KeywordConstant\n>";
 
         private string CurrentKeyWordMarkUp =>
-            $"<keyword> {_tokenizer.CurrentToken} </keyword>\n";
+            $"<keyword> {CurrentToken} </keyword>\n";
 
         private string CurrentVarNameMarkUp =>
-            $"<varName> {_tokenizer.CurrentToken} </varName>\n";
-
-        private string CurrentSubroutineNameMarkUp =>
-            $"<subroutineName> {CurrentToken} </subroutineName>";
+            $"<varName> {CurrentToken} </varName>\n";
 
         private string CurrentIdentifierMarkUp =>
-            $"<identifier {_tokenizer.CurrentToken} </identifier>\n";
+            $"<identifier {CurrentToken} </identifier>\n";
 
         private string CurrentSymbolMarkUp =>
-            $"<symbol> {_tokenizer.CurrentToken} </symbol>\n";
+            $"<symbol> {CurrentToken} </symbol>\n";
 
         private void Write(string text)
         {

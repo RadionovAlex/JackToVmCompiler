@@ -61,27 +61,6 @@ namespace JackToVmCompiler
                 var compilationEngine = new XmlCompilationEngine(path, tokenizer);
                 compilationEngine.Compile();
 
-                /*while (tokenizer.HasMoreTokens())
-                {
-                    tokenizer.Next();
-                    var tokenType = tokenizer.GetTokenType();
-                    if(tokenType == TokenType.KeyWord)
-                    {
-
-                    }
-
-                }*/
-                
-
-               /* var pathDirectory = Path.GetDirectoryName(path);
-                
-                var fileName = Path.GetFileNameWithoutExtension(path);
-                var newPath = $"{Path.Combine(pathDirectory, fileName)}.xml";
-                var newTestPath = $"{Path.Combine(pathDirectory, fileName)}.tokens";
-
-                await File.WriteAllLinesAsync(newPath, cleanLines);
-                await File.WriteAllLinesAsync(newTestPath, tokenizer.Tokens);*/
-
                 return true;
             }
             catch(Exception ex)

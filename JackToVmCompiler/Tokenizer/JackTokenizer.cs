@@ -1,7 +1,11 @@
-﻿namespace JackToVmCompiler.Tokenizer
+﻿using System.Text.RegularExpressions;
+
+namespace JackToVmCompiler.Tokenizer
 {
     internal class JackTokenizer
     {
+        const string Pattern = @"(?<quoted>""[^""]*"")|(?<symbol>[\(\)\{\}\[\]\;\.\,\s])";
+
         private readonly List<string> _originalLines;
         private readonly List<string> _tokens;
 
@@ -83,7 +87,39 @@
                 ProcessLine(line);
         }
 
-        private void ProcessLine(string line) =>
-            _tokens.AddRange(line.Split(' '));
+        private void ProcessLine(string input)
+        {
+            var matches = Regex.Matches(input, Pattern);
+            var result = new List<string>();
+            var lastIndex = 0;
+
+            foreach (Match match in matches)
+            {
+                if (match.Groups["quoted"].Success)
+                {
+                    result.Add(match.Groups["quoted"].Value);
+                    lastIndex = match.Index + match.Length;
+                }
+                else if (match.Groups["symbol"].Success)
+                {
+                    if (match.Index > lastIndex)
+                    {
+                        string beforeSymbol = input.Substring(lastIndex, match.Index - lastIndex);
+                        result.Add(beforeSymbol);
+                    }
+                    result.Add(match.Value.Trim());
+                    lastIndex = match.Index + match.Length;
+                }
+            }
+
+            if (lastIndex < input.Length)
+            {
+                result.Add(input.Substring(lastIndex));
+            }
+
+            result.RemoveAll(string.IsNullOrWhiteSpace);
+
+            _tokens.AddRange(result);
+        }
     }
 }
