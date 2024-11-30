@@ -1,7 +1,7 @@
 ﻿using JackToVmCompiler.Tokenizer;
 using System.Text;
 
-namespace JackToVmCompiler.CompilationEngine
+namespace JackToVmCompiler.CompilationEngine.Xml
 {
     internal class XmlCompilationEngine : ICompilationEngine
     {
