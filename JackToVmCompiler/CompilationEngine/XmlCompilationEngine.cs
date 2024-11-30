@@ -5,6 +5,8 @@ namespace JackToVmCompiler.CompilationEngine
 {
     internal class XmlCompilationEngine : ICompilationEngine
     {
+        private const string SubroutineCallCompileMarkupName = "subroutineCall";
+
         private string _outputFilePath;
         private JackTokenizer _tokenizer;
         private StringBuilder _sb;
@@ -485,7 +487,7 @@ namespace JackToVmCompiler.CompilationEngine
             }
             else if(NextToken == LexicalTables.OpenParenthesis || NextToken == LexicalTables.Dot)
             {
-                CompileSubroutineCall();
+                WrapIntoMarkup(SubroutineCallCompileMarkupName, CompileSubroutineCall);
             }
             else if(_tokenizer.GetTokenType() == TokenType.Identifier)
             {
@@ -498,8 +500,6 @@ namespace JackToVmCompiler.CompilationEngine
 
         public void CompileSubroutineCall()
         {
-            AppendWithOffset("<subroutineCall>\n");
-            _currentOffsetTabs++;
             switch (NextToken)
             {
                 case ".":
@@ -518,9 +518,18 @@ namespace JackToVmCompiler.CompilationEngine
                     throw new Exception("Expected . or ( in subroutine call");
 
             }
+        }
 
+        private void WrapIntoMarkup(string markupElementName, Action toWrap)
+        {
+            if (toWrap == null)
+                throw new Exception("Wrapping function is null");
+
+            AppendWithOffset($"<{markupElementName}>\n");
+            _currentOffsetTabs++;
+            toWrap.Invoke();
             _currentOffsetTabs--;
-            AppendWithOffset("</subroutineCall>\n");
+            AppendWithOffset($"</{markupElementName}>\n");
         }
 
       
