@@ -331,6 +331,8 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             AppendWithOffset(CurrentSymbolMarkUp);
 
             WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+            _tokenizer.Next();
+            AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         public void CompileIf()
@@ -355,18 +357,18 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
         public void CompileStatements()
         {
-            _tokenizer.Next();
-            while(_tokenizer.GetTokenType() != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
-            {
+            
+            while(NextToken != LexicalTables.CloseBracket)
                 CompileStatement();
-                _tokenizer.Next();
-            }
+
+            _tokenizer.Next();
 
             AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         private void CompileStatement()
         {
+            _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord)
                 throw new Exception($"Statement compile expected keyword, type of statement, but get: {tokenType}");
