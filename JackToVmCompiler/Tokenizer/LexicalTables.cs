@@ -92,7 +92,7 @@ namespace JackToVmCompiler.Tokenizer
             if (!IntegerConstantRegex.IsMatch(input))
                 return false;
 
-            if (int.TryParse(input, out int value))
+            if (!int.TryParse(input, out int value))
                 return false;
 
             var isValid = value >= 0 && value <= 32767;
