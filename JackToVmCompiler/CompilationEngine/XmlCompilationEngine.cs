@@ -6,6 +6,17 @@ namespace JackToVmCompiler.CompilationEngine
     internal class XmlCompilationEngine : ICompilationEngine
     {
         private const string SubroutineCallCompileMarkupName = "subroutineCall";
+        private const string TermCompileMarkupName = "term";
+        private const string ClassCompileMarkupName = "class";
+        private const string ClassVarDecMarkupName = "classVarDec";
+        private const string SubroutineDecMarkupName = "subroutineDec";
+        private const string SubroutineBodyMarkupName = "subroutineBody";
+        private const string VarDecMarkupName = "varDec";
+        private const string ParameterListMarkupName = "parameterList";
+        private const string ExpressionMarkupName = "expression";
+        private const string ExpressionListMarkupName = "expressionList";
+        private const string LetStatementMarkupName = "letStatement";
+        private const string StatementsMarkupName = "statements";
 
         private string _outputFilePath;
         private JackTokenizer _tokenizer;
@@ -298,9 +309,6 @@ namespace JackToVmCompiler.CompilationEngine
 
         public void CompileExpression()
         {
-            AppendWithOffset("<expression>\n");
-            _currentOffsetTabs++;
-
             CompileTerm();
 
             while(LexicalTables.OperatorsTableString.Contains(NextToken))
@@ -308,9 +316,6 @@ namespace JackToVmCompiler.CompilationEngine
                 AppendWithOffset(CurrentOperatorMarkUp);
                 CompileTerm();
             }
-
-            _currentOffsetTabs--;
-            AppendWithOffset("</expression>\n");
         }
 
         public void CompileExpressionList()
@@ -481,6 +486,7 @@ namespace JackToVmCompiler.CompilationEngine
             else if (CurrentToken == LexicalTables.OpenParenthesis)
             {
                 AppendWithOffset(CurrentSymbolMarkUp);
+                WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
                 CompileExpression();
                 _tokenizer.Next();
                 AppendWithOffset(CurrentSymbolMarkUp);
