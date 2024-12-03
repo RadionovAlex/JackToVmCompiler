@@ -16,6 +16,9 @@ namespace JackToVmCompiler.CompilationEngine.Xml
         private const string ExpressionMarkupName = "expression";
         private const string ExpressionListMarkupName = "expressionList";
         private const string LetStatementMarkupName = "letStatement";
+        private const string IfStatementMarkupName = "ifStatement";
+        private const string WhileStatementMarkupName = "whileStatement";
+        private const string DoStatementMarkupName = "doStatement";
         private const string StatementsMarkupName = "statements";
 
         private string _outputFilePath;
@@ -337,7 +340,66 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
         public void CompileIf()
         {
-            throw new NotImplementedException();
+            AppendWithOffset(CurrentKeyWordMarkUp);
+
+            _tokenizer.Next();
+            var tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception($"Expected open parenthesis for if expression, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.CloseParenthesis)
+                throw new Exception($"Expected close parenthesis for if expression, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception($"Expected open bracket for if statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            WrapIntoMarkup(StatementsMarkupName, CompileStatements);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception($"Expected close bracket for if statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            if(_tokenizer.GetNextTokenType() != TokenType.KeyWord || _tokenizer.GetNextKeywordType() != KeyWordType.Else)
+                return;
+
+            _tokenizer.Next();
+
+            AppendWithOffset(CurrentKeyWordMarkUp);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception($"Expected open bracket for else statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            WrapIntoMarkup(StatementsMarkupName, CompileStatements);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception($"Expected close bracket for else statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         public void CompileWhile()
@@ -380,7 +442,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                     WrapIntoMarkup(LetStatementMarkupName, CompileLet);
                     break;
                 case KeyWordType.If:
-                    CompileIf();
+                    WrapIntoMarkup(IfStatementMarkupName, CompileIf);
                     break;
                 case KeyWordType.While:
                     break;

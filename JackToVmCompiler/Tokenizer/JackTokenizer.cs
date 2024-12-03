@@ -47,30 +47,38 @@ namespace JackToVmCompiler.Tokenizer
             _currentToken = _tokens[_currentIndex];
         }
 
-        
 
-        public TokenType GetTokenType()
+
+        public TokenType GetTokenType() => GetTokenType(CurrentToken);
+
+        public TokenType GetNextTokenType() => GetTokenType(NextToken);
+       
+
+        private TokenType GetTokenType(string token)
         {
-            if (LexicalTables.IsKeyword(_currentToken))
+            if (LexicalTables.IsKeyword(token))
                 return TokenType.KeyWord;
 
-            if (LexicalTables.IsSymbol(_currentToken))
+            if (LexicalTables.IsSymbol(token))
                 return TokenType.Symbol;
 
-            if (LexicalTables.IsIdentifier(_currentToken))
+            if (LexicalTables.IsIdentifier(token))
                 return TokenType.Identifier;
 
-            if (LexicalTables.IsStringConstant(_currentToken))
+            if (LexicalTables.IsStringConstant(token))
                 return TokenType.StringConst;
 
-            if (LexicalTables.IsIntegerConstant(_currentToken))
+            if (LexicalTables.IsIntegerConstant(token))
                 return TokenType.IntConst;
 
-            throw new Exception($"Cannot identify tokenType of : {_currentToken}");
+            throw new Exception($"Cannot identify tokenType of : {token}");
         }
+
 
         public KeyWordType GetKeyWordType() =>
             LexicalTables.KeywordsMap[_currentToken];
+
+        public KeyWordType GetNextKeywordType() => LexicalTables.KeywordsMap[NextToken];
 
         public char GetSymbol() =>
             _currentToken[0];
