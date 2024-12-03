@@ -317,12 +317,13 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
-            if(tokenType != TokenType.Symbol && CurrentToken != LexicalTables.Equal)
+            if(tokenType != TokenType.Symbol || CurrentToken != LexicalTables.Equal)
             {
                 if (CurrentToken != LexicalTables.OpenSquareBracket)
                     throw new Exception($"Expected {LexicalTables.OpenSquareBracket}");
                 AppendWithOffset(CurrentSymbolMarkUp);
                 WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+                _tokenizer.Next();
                 if (CurrentToken != LexicalTables.CloseSquareBracket)
                     throw new Exception($"Expected {LexicalTables.CloseSquareBracket}");
                 AppendWithOffset(CurrentSymbolMarkUp);
@@ -446,6 +447,8 @@ namespace JackToVmCompiler.CompilationEngine.Xml
         {
             AppendWithOffset(CurrentKeyWordMarkUp);
 
+            _tokenizer.Next(); // CompileSubroutineCall requires external Next call because of complicated Term parsing
+
             WrapIntoMarkup(SubroutineCallCompileMarkupName, CompileSubroutineCall);
 
             _tokenizer.Next();
@@ -470,13 +473,8 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
         public void CompileStatements()
         {
-            
             while(NextToken != LexicalTables.CloseBracket)
                 CompileStatement();
-
-            _tokenizer.Next();
-
-            AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         private void CompileStatement()
