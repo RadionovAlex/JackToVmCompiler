@@ -19,6 +19,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
         private const string IfStatementMarkupName = "ifStatement";
         private const string WhileStatementMarkupName = "whileStatement";
         private const string DoStatementMarkupName = "doStatement";
+        private const string ReturnStatementMarkupName = "returnStatement";
         private const string StatementsMarkupName = "statements";
 
         private string _outputFilePath;
@@ -404,17 +405,67 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
         public void CompileWhile()
         {
-            throw new NotImplementedException();
+            AppendWithOffset(CurrentKeyWordMarkUp);
+
+            _tokenizer.Next();
+            var tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception($"Expected open parenthesis for while expression, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.CloseParenthesis)
+                throw new Exception($"Expected close parenthesis for while expression, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception($"Expected open bracket for while statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
+
+            WrapIntoMarkup(StatementsMarkupName, CompileStatements);
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception($"Expected close bracket for while statements, but {tokenType}, {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         public void CompileDo()
         {
-            throw new NotImplementedException();
+            AppendWithOffset(CurrentKeyWordMarkUp);
+
+            WrapIntoMarkup(SubroutineCallCompileMarkupName, CompileSubroutineCall);
+
+            _tokenizer.Next();
+            if(CurrentToken != LexicalTables.ComaAndDot)
+                throw new Exception($"Expected ; for subroutine call , but {CurrentToken}");
         }
 
         public void CompileReturn()
         {
-            throw new NotImplementedException();
+            AppendWithOffset(CurrentKeyWordMarkUp);
+
+            if(NextToken != LexicalTables.ComaAndDot)
+                WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.ComaAndDot)
+                throw new Exception($"Expected ; for return but {CurrentToken}");
+
+            AppendWithOffset(CurrentSymbolMarkUp);
         }
 
         public void CompileStatements()
@@ -445,10 +496,13 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                     WrapIntoMarkup(IfStatementMarkupName, CompileIf);
                     break;
                 case KeyWordType.While:
+                    WrapIntoMarkup(WhileStatementMarkupName, CompileWhile);
                     break;
                 case KeyWordType.Do:
+                    WrapIntoMarkup(DoStatementMarkupName, CompileDo);
                     break;
                 case KeyWordType.Return:
+                    WrapIntoMarkup(ReturnStatementMarkupName, CompileReturn);
                     break;
 
                 default:
