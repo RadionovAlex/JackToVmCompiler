@@ -4,7 +4,7 @@ namespace JackToVmCompiler.Tokenizer
 {
     internal class JackTokenizer
     {
-        const string Pattern = @"(?<quoted>""[^""]*"")|(?<symbol>[\(\)\{\}\[\]\;\.\,\s])";
+        const string Pattern = @"(?<quoted>""[^""]*"")|(?<symbol>[\(\)\{\}\[\]\;\.\,\-\+\~\|\&\s])";
 
         private readonly List<string> _originalLines;
         private readonly List<string> _tokens;
