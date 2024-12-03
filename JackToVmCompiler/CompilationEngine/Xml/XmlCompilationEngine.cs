@@ -231,16 +231,16 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             AppendWithOffset(CurrentSymbolMarkUp);
             if(NextToken != LexicalTables.CloseParenthesis)
             {
-                while (CurrentToken != LexicalTables.CloseParenthesis)
+                while (NextToken != LexicalTables.CloseParenthesis)
                 {
                     CompileParameter();
-                    _tokenizer.Next();
-                    if (_tokenizer.GetTokenType() == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
+                    if(NextToken == LexicalTables.Coma)
                     {
-                        AppendWithOffset(CurrentSymbolMarkUp);
                         _tokenizer.Next();
+                        AppendWithOffset(CurrentSymbolMarkUp);
                     }
                 }
+                _tokenizer.Next();
             }
             else
             {
@@ -266,7 +266,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.Identifier)
-                throw new Exception($"Ecpected var name but got {tokenType}");
+                throw new Exception($"Expected var name but got {tokenType}");
 
             AppendWithOffset(CurrentVarNameMarkUp);
 
