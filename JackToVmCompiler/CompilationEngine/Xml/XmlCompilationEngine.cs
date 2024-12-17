@@ -68,7 +68,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                         var keywordType = _tokenizer.GetKeyWordType();
                         if(keywordType == KeyWordType.Class)
                         {
-                             WrapIntoMarkup(ClassCompileMarkupName, CompileClass);
+                            WrapIntoMarkup(ClassCompileMarkupName, CompileClass);
                             Write(_sb.ToString());
                             _sb.Clear();
                         }
@@ -269,7 +269,6 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                 throw new Exception($"Expected var name but got {tokenType}");
 
             AppendWithOffset(CurrentVarNameMarkUp);
-
         }
 
         public void CompileExpression()
