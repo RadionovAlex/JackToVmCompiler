@@ -86,6 +86,8 @@ namespace JackToVmCompiler.Tokenizer
         public static bool IsStringConstant (string value) => StringConstantRegex.Match(value).Success;
 
         public static bool IsIdentifier (string value) => IdentifierRegex.Match(value).Success;
+
+        public static bool IsVar (string value) => KeywordsMap.ContainsKey(value) && KeywordsMap[value] == KeyWordType.Var;
         
         public static bool IsIntegerConstant (string input)
         {

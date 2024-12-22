@@ -158,7 +158,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord && tokenType != TokenType.Identifier)
                 throw new Exception("Expected keyword or iendifier");
-            if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidProcedureTypeKeyWorkd(_tokenizer.GetKeyWordType()))
+            if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidProcedureTypeKeyWord(_tokenizer.GetKeyWordType()))
                 throw new Exception($"Expected var type as void, but {_tokenizer.GetKeyWordType()}");
             AppendWithOffset(GetTypeMarkUp(_tokenizer.CurrentToken));
 
@@ -241,7 +241,6 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                 _tokenizer.Next();
             }
             
-                
             AppendWithOffset(CurrentSymbolMarkUp);
         }
 

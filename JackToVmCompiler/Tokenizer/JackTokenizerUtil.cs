@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JackToVmCompiler.Tokenizer
+﻿namespace JackToVmCompiler.Tokenizer
 {
     internal static class JackTokenizerUtil
     {
@@ -18,7 +12,8 @@ namespace JackToVmCompiler.Tokenizer
             return isValid;
         }
 
-        public static bool IsValidProcedureTypeKeyWorkd(KeyWordType keyword) => keyword == KeyWordType.Void;
+        public static bool IsValidProcedureTypeKeyWord(KeyWordType keyword) => 
+            keyword == KeyWordType.Void || IsValidVariableKeyWord(keyword);
 
         public static bool IsVariableDeclarationKeyWord(KeyWordType keyword)
         {

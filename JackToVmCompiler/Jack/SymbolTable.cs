@@ -24,6 +24,9 @@
         private string _currentClassName;
         private string _currentRoutineName;
 
+        public string CurrentClass => _currentClassName;
+        public string CurrentRoutineName => _currentRoutineName;
+
         internal SymbolTable(string className)
         {
            _currentClassName = className;
