@@ -1,4 +1,4 @@
-﻿namespace JackToVmCompiler.SymbolTable
+﻿namespace JackToVmCompiler.Jack
 {
     internal class Entry
     {
@@ -21,12 +21,26 @@
         private Dictionary<string, Entry> _classSymbols = new ();
         private Dictionary<string, Entry> _routineSymbols = new ();
 
-        internal SymbolTable() { }
+        private string _currentClassName;
+        private string _currentRoutineName;
 
-        internal void HandleNewClass() => _classSymbols.Clear();
+        internal SymbolTable(string className)
+        {
+           _currentClassName = className;
+        }
 
-        internal void HandleNewRoutine() => _routineSymbols.Clear();
+        internal void HandleNewClass(string className)
+        {
+            _currentClassName = className;
+            _classSymbols.Clear();
+        } 
 
+        internal void HandleNewRoutine(string routineName)
+        {
+            _currentRoutineName = routineName;
+            _routineSymbols.Clear();
+        }
+        
         internal void Define(string name, string type, SymbolKind symbolKind)
         {
             var index = ScopeVarCount(symbolKind);
@@ -63,19 +77,20 @@
             }
         }
 
-        internal SymbolKind KindOf(string name)
-        {
-            return SymbolKind.Var;
-        }
+        internal SymbolKind KindOf(string name) => GetEntry(name).Kind;
 
-        internal string TypeOf(string name)
-        {
-            return string.Empty;
-        }
+        internal string TypeOf(string name) => GetEntry(name).Type;
 
-        internal int IndexOf(string name)
+        internal int IndexOf(string name) => GetEntry(name).Index;
+
+        private Entry GetEntry(string name)
         {
-            return 0;
+            if (_routineSymbols.TryGetValue(name, out var routineEntry))
+                return routineEntry;
+            if (_classSymbols.TryGetValue(name, out var classEntry))
+                return classEntry;
+
+            throw new Exception($"Cannot find {name} anyWhere in class {_currentClassName} and method {_currentRoutineName} ");
         }
     }
 }

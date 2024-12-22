@@ -1,7 +1,8 @@
 ﻿namespace JackToVmCompiler.CompilationEngine
 {
-    internal interface ICompilationEngine
+    public interface ICompilationEngine
     {
+        void Compile();
         /// <summary>
         /// Compiles a complete class 
         /// </summary>

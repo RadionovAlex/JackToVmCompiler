@@ -47,13 +47,11 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
         public XmlCompilationEngine(string sourcePath, JackTokenizer tokenizer)
         {
-            
             _tokenizer = tokenizer;
             _sb = new StringBuilder(_tokenizer.Tokens.Count * 10);
             var pathDirectory = Path.GetDirectoryName(sourcePath);
             var fileName = Path.GetFileNameWithoutExtension(sourcePath);
             _outputFilePath = $"{Path.Combine(pathDirectory, fileName)}.xml";
-           
         }
 
         public void Compile()
@@ -99,7 +97,6 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
             AppendWithOffset(CurrentSymbolMarkUp);
 
-            var subroutineDeclarationExists = false;
             _tokenizer.Next();
 
             while(_tokenizer.GetTokenType() != TokenType.Symbol && CurrentToken != LexicalTables.CloseBracket)
@@ -110,9 +107,6 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                 var keyWordTYpe = _tokenizer.GetKeyWordType();
                 if (JackTokenizerUtil.IsVariableDeclarationKeyWord(keyWordTYpe))
                 {
-                    if (subroutineDeclarationExists)
-                        throw new Exception("Subroutine declaration already exists but classVariables declaration appeared");
-
                     WrapIntoMarkup(ClassVarDecMarkupName, CompileClassVarDec);
                 }
                 else if (JackTokenizerUtil.IsProcedureDeclarationKeyword(keyWordTYpe))

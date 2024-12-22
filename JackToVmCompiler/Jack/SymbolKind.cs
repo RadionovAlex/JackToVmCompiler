@@ -1,4 +1,4 @@
-﻿namespace JackToVmCompiler.SymbolTable
+﻿namespace JackToVmCompiler.Jack
 {
     internal enum SymbolKind
     {

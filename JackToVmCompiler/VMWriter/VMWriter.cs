@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace JackToVmCompiler.VMWriter
 {
     internal class VMWriter
     {
-        private StringBuilder _sb = new StringBuilder();
+        private StringBuilder _sb;
 
-        internal VMWriter(string filePath)
+        internal VMWriter(StringBuilder sb)
         {
-
+            _sb = sb;
         }
 
         internal void WritePush(SegmentKind segment, int index)

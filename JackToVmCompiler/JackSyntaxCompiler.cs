@@ -47,7 +47,6 @@ namespace JackToVmCompiler
                 tasks.Add(task);
             }
 
-
             await Task.WhenAll(tasks.ToArray());
             return tasks.All(x => x.Result);
         }
