@@ -86,7 +86,7 @@
 
         internal int IndexOf(string name) => GetEntry(name).Index;
 
-        private Entry GetEntry(string name)
+        internal Entry GetEntry(string name)
         {
             if (_routineSymbols.TryGetValue(name, out var routineEntry))
                 return routineEntry;

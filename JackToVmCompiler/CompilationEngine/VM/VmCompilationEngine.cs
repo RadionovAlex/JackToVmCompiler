@@ -144,7 +144,13 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileExpression()
         {
-            throw new NotImplementedException();
+            CompileTerm();
+
+            while (LexicalTables.OperatorsTableString.Contains(NextToken))
+            {
+                //AppendWithOffset(CurrentOperatorMarkUp);
+                // WrapIntoMarkup(TermCompileMarkupName, CompileTerm);
+            }
         }
 
         public void CompileExpressionList()
@@ -157,9 +163,69 @@ namespace JackToVmCompiler.CompilationEngine.VM
             throw new NotImplementedException();
         }
 
+        // logic is next: program remembers all the information
+        // about variable/field/statc/argument that will be modified
+        // and only after all expression computation called
+        // ( all the requrired values are pushed, computed ) 
+        // pop "info" should be called;
         public void CompileLet()
         {
-            throw new NotImplementedException();
+            // AppendWithOffset(CurrentKeyWordMarkUp);
+
+            _tokenizer.Next();
+            var tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Identifier)
+                throw new Exception($"Expected identifier as variable name, but got: {tokenType}");
+
+            var variableName = CurrentToken;
+            var isArrayCellChange = false;
+
+            var entry = _symbolTable.GetEntry(variableName);
+            var segmentKind = entry.Kind.ToSegmentKind();
+
+            _tokenizer.Next();
+            tokenType = _tokenizer.GetTokenType();
+           
+            if (tokenType != TokenType.Symbol || CurrentToken != LexicalTables.Equal)
+            {
+                if (CurrentToken != LexicalTables.OpenSquareBracket)
+                    throw new Exception($"Expected {LexicalTables.OpenSquareBracket}");
+
+                // in case it is array`s cell, information about address should be wrote into temp1;
+                isArrayCellChange = true; 
+                CompileExpression();
+
+                // information about cell should be wrote in the Temp1
+                // push {get info from variable name}
+                // add ( add with compile expression result, which is index ) 
+                // pop temp 1
+                _vmWriter.WritePush(segmentKind, entry.Index);
+                _vmWriter.WriteArithmetic(VMWriter.CommandKind.Add);
+                _vmWriter.WritePop(VMWriter.SegmentKind.Temp, 1);
+                
+                _tokenizer.Next();
+                if (CurrentToken != LexicalTables.CloseSquareBracket)
+                    throw new Exception($"Expected {LexicalTables.CloseSquareBracket}");
+                _tokenizer.Next();
+            }
+
+            if (CurrentToken != LexicalTables.Equal)
+                throw new Exception($"Expected {LexicalTables.Equal} in let statement");
+
+            CompileExpression();
+
+            // there is, if it is an isArrayCellChange, temp1 should be read and next ->
+            // pop point1 to have correct that 
+            if (isArrayCellChange)
+            {
+
+            }
+            else
+            {
+
+            }
+
+            _tokenizer.Next();
         }
 
         public void CompileParameter()
