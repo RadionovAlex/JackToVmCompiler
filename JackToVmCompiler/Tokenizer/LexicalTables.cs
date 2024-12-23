@@ -53,6 +53,33 @@ namespace JackToVmCompiler.Tokenizer
             { "this", KeyWordType.This }
         };
 
+        public static readonly Dictionary<string, UnaryOperatorType> UnaryOperatorsMap = new Dictionary<string, UnaryOperatorType>()
+        {
+            {"-", UnaryOperatorType.Minus },
+            {"~", UnaryOperatorType.BitwiseNot }
+        };
+
+        public static readonly Dictionary<string, OperatorTypes> OperatorTypesMap = new Dictionary<string, OperatorTypes>()
+        {
+            {"+", OperatorTypes.Plus},
+            {"-", OperatorTypes.Minus},
+            {"*", OperatorTypes.Mult},
+            {"/", OperatorTypes.Division},
+            {"&", OperatorTypes.BitwiseAnd},
+            {"|", OperatorTypes.BitwiseOr},
+            {"<", OperatorTypes.LessThan },
+            {">", OperatorTypes.GreaterThan},
+            {"=", OperatorTypes.EqualTo }
+        };
+
+        public static readonly Dictionary<string, CompareOperators> CompareOperatorsMap = new Dictionary<string, CompareOperators>()
+        {
+            {"<", CompareOperators.Less },
+            {">", CompareOperators.Great },
+            {"=", CompareOperators.Equal }
+
+        };        
+
         public static readonly HashSet<char> SymbolsTable = new HashSet<char>()
         {
             '{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', '|', '<', '>', '=', '~'
@@ -73,9 +100,14 @@ namespace JackToVmCompiler.Tokenizer
             '-','~'
         };
 
+        public static readonly HashSet<string> UnaryOperatorsString = new HashSet<string>()
+        {
+            "-","~"
+        };
+
         public static bool IsOperator(char value) => OperatorsTable.Contains(value);
 
-        public static bool IsUnaryOperator(char value) => OperatorsTable.Contains(value);
+        public static bool IsUnaryOperator(char value) => UnaryOperators.Contains(value);
 
         public static bool IsKeyword (string value) => KeywordsMap.ContainsKey(value);
 

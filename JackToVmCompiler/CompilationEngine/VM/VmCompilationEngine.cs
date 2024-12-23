@@ -1,5 +1,6 @@
 ﻿using JackToVmCompiler.Jack;
 using JackToVmCompiler.Tokenizer;
+using JackToVmCompiler.VMWriter;
 using System.Text;
 
 namespace JackToVmCompiler.CompilationEngine.VM
@@ -365,7 +366,65 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileTerm()
         {
-            throw new NotImplementedException();
+            _tokenizer.Next();
+
+            if (LexicalTables.IsIntegerConstant(CurrentToken))
+            {
+                // Push const 
+                _vmWriter.WritePush(VMWriter.SegmentKind.Const, _tokenizer.GetIntConst());
+            }
+            else if (LexicalTables.IsStringConstant(CurrentToken))
+            {
+                // for each char in CurrentToken String.appendChar(char c) should be called
+                // AppendWithOffset(CurrentStringConstant);
+            }
+            else if (LexicalTables.IsConstantKeyWord(CurrentToken))
+            {
+                VmTranslationUtil.WritePushKeywordConstant(CurrentToken, _vmWriter);
+                // AppendWithOffset(CurrentKeyWordConstant);
+            }
+            else if (_tokenizer.GetTokenType() == TokenType.Symbol
+                && LexicalTables.IsUnaryOperator(_tokenizer.GetSymbol()))
+            {
+                var unaryOperatorKind = LexicalTables.UnaryOperatorsMap[CurrentToken];
+                CompileTerm();
+
+                VmTranslationUtil.WriteUnaryOperator(unaryOperatorKind, _vmWriter);
+            }
+            else if (NextToken == LexicalTables.OpenSquareBracket)
+            {
+                var arrayEntry = _symbolTable.GetEntry(CurrentToken);
+                // AppendWithOffset(CurrentVarNameMarkUp);
+                _tokenizer.Next();
+                // AppendWithOffset(CurrentSymbolMarkUp);
+                // WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+                _tokenizer.Next();
+
+                // there is compiler should read value from that and push it into stack
+                // so before that, in compile expression, push should be made
+                // and than, arary entry`s address should be added 
+                // and than pointer 1 ( that )  should point on this address 
+                // AppendWithOffset(CurrentSymbolMarkUp);
+                _vmWriter.WritePush(arrayEntry.Kind.ToSegmentKind(), arrayEntry.Index);
+                _vmWriter.WriteArithmetic(CommandKind.Add);
+                _vmWriter.WritePop(SegmentKind.Pointer, 1);
+                _vmWriter.WritePush(SegmentKind.That, 0);
+            }
+            else if (CurrentToken == LexicalTables.OpenParenthesis)
+            {
+                // AppendWithOffset(CurrentSymbolMarkUp);
+                // WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+                _tokenizer.Next();
+                // AppendWithOffset(CurrentSymbolMarkUp);
+            }
+            else if (NextToken == LexicalTables.OpenParenthesis || NextToken == LexicalTables.Dot)
+            {
+                // WrapIntoMarkup(SubroutineCallCompileMarkupName, CompileSubroutineCall);
+            }
+            else if (_tokenizer.GetTokenType() == TokenType.Identifier)
+            {
+                // AppendWithOffset(CurrentVarNameMarkUp);
+            }
         }
 
         public void CompileVarDec()
