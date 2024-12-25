@@ -270,6 +270,7 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
             while(LexicalTables.OperatorsTableString.Contains(NextToken))
             {
+                _tokenizer.Next();
                 AppendWithOffset(CurrentOperatorMarkUp);
                 WrapIntoMarkup(TermCompileMarkupName, CompileTerm);
             }
@@ -577,7 +578,6 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                     break;
                 default:
                     throw new Exception("Expected . or ( in subroutine call");
-
             }
         }
 
