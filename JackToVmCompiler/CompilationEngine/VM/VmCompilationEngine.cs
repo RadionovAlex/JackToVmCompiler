@@ -17,6 +17,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
         private SymbolTable _symbolTable;
         private VMWriter.VMWriter _vmWriter;
 
+        private int _currentSubroutineLocalsNumber;
+
         private string CurrentToken => _tokenizer.CurrentToken;
 
         private string NextToken => _tokenizer.NextToken;
@@ -149,8 +151,16 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             while (LexicalTables.OperatorsTableString.Contains(NextToken))
             {
-                //AppendWithOffset(CurrentOperatorMarkUp);
-                // WrapIntoMarkup(TermCompileMarkupName, CompileTerm);
+                _tokenizer.Next();
+                var operation = CommandKindExtensions.JackCommandToVmCommandMap[CurrentToken];
+                if (CommandKindExtensions.JackCommandToVmCommandMap.TryGetValue(NextToken, out var secondCompareOperator))
+                {
+                    _tokenizer.Next();
+                    operation |= secondCompareOperator;
+                }
+                    
+                CompileTerm();
+                _vmWriter.WriteArithmetic(operation);
             }
         }
 
@@ -252,7 +262,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 throw new Exception($"Expected keyword or identifier as type of variables, but got: {_tokenizer.CurrentToken}");
 
             if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidVariableKeyWord(_tokenizer.GetKeyWordType()))
-                throw new Exception($"Ecpected var type as int, char or boolean, but {_tokenizer.GetKeyWordType()}");
+                throw new Exception($"Expected var type as int, char or boolean, but {_tokenizer.GetKeyWordType()}");
 
             var argumentType = CurrentToken;
 
@@ -350,7 +360,13 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             var subroutineName = CurrentToken;
             _symbolTable.HandleNewRoutine(subroutineName);
-            _vmWriter.WriteLabel(_symbolTable.CurrentClass);
+            var funcLabel = VmTranslationUtil.MethodNameLabel
+                (_symbolTable.CurrentClass, _symbolTable.CurrentRoutineName);
+
+            // paste funcName without NLocals
+            _vmWriter.WriteFunctionWithNumberTemplate(funcLabel); 
+
+            _currentSubroutineLocalsNumber = 0;
 
             CompileParameterList();
             _tokenizer.Next();
@@ -359,7 +375,9 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 throw new Exception("Expected open bracket { of procedure ");
 
             CompileSubroutineBody();
-            // WrapIntoMarkup(SubroutineBodyMarkupName, CompileSubroutineBody);
+
+            // replace NLocals for funcName 
+            _sb.Replace(VMWriter.VMWriter.TemplateName(funcLabel), _currentSubroutineLocalsNumber.ToString());
         }
 
         private void CompileSubroutineBody()
@@ -370,8 +388,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 CompileVarDec();
 
             CompileStatements();
-
-            // WrapIntoMarkup(StatementsMarkupName, CompileStatements);
         }
 
         public void CompileSubroutineCall()
@@ -518,6 +534,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             foreach (var variabeName in variableNamesList)
                 _symbolTable.Define(variabeName, variablesType, SymbolKind.Var);
+
+            _currentSubroutineLocalsNumber += variableNamesList.Count;
         }
 
         public void CompileWhile()

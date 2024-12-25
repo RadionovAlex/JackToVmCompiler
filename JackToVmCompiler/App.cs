@@ -7,7 +7,7 @@ namespace JackToVmCompiler
         static async Task Main(string[] args)
         {
             if (args.IsNullOrEmpty())
-                args = new string[] { @"D:\Software\nand2tetris\nand2tetris\projects\11\ConvertToBin" };
+                args = new string[] { @"D:\Software\nand2tetris\nand2tetris\projects\11\Seven" };
             if (args.IsNullOrEmpty())
             {
                 Console.WriteLine("Please, write .jack file path or directory with .jack files as first argument");
