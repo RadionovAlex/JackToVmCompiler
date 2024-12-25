@@ -84,6 +84,6 @@
         /// <summary>
         /// Compiles a (possibly empty) comma-separated list of expressions
         /// </summary>
-        void CompileExpressionList();
+        int CompileExpressionList();
     }
 }

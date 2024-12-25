@@ -95,5 +95,15 @@
 
             throw new Exception($"Cannot find {name} anyWhere in class {_currentClassName} and method {_currentRoutineName} ");
         }
+
+        internal Entry GetEntrySafe(string name)
+        {
+            if (_routineSymbols.TryGetValue(name, out var routineEntry))
+                return routineEntry;
+            if (_classSymbols.TryGetValue(name, out var classEntry))
+                return classEntry;
+
+            return null;
+        }
     }
 }

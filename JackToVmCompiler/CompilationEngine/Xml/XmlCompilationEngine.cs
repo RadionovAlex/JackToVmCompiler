@@ -275,8 +275,9 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             }
         }
 
-        public void CompileExpressionList()
+        public int CompileExpressionList()
         {
+            int argumentsCount = 0;
             _tokenizer.Next();
             if (CurrentToken != LexicalTables.OpenParenthesis)
                 throw new Exception($"Expected {LexicalTables.OpenParenthesis} in expressionList");
@@ -286,7 +287,8 @@ namespace JackToVmCompiler.CompilationEngine.Xml
             while(NextToken != LexicalTables.CloseParenthesis)
             {
                 WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
-                if(NextToken == LexicalTables.Coma)
+                argumentsCount++;
+                if (NextToken == LexicalTables.Coma)
                 {
                     _tokenizer.Next();
                     AppendWithOffset(CurrentSymbolMarkUp);
@@ -295,6 +297,8 @@ namespace JackToVmCompiler.CompilationEngine.Xml
 
             _tokenizer.Next();
             AppendWithOffset(CurrentSymbolMarkUp);
+
+            return argumentsCount;
         }
 
         public void CompileLet()
@@ -559,11 +563,17 @@ namespace JackToVmCompiler.CompilationEngine.Xml
                     AppendWithOffset(CurrentSymbolMarkUp);
                     _tokenizer.Next();
                     AppendWithOffset(CurrentSubroutineName);
-                    WrapIntoMarkup(ExpressionListMarkupName, CompileExpressionList);
+                    WrapIntoMarkup(ExpressionListMarkupName, () =>
+                    {
+                        CompileExpressionList();
+                    });
                     break;
                 case "(":
                     AppendWithOffset(CurrentSubroutineName);
-                    WrapIntoMarkup(ExpressionListMarkupName, CompileExpressionList);
+                    WrapIntoMarkup(ExpressionListMarkupName, () =>
+                    {
+                        CompileExpressionList();
+                    });
                     break;
                 default:
                     throw new Exception("Expected . or ( in subroutine call");

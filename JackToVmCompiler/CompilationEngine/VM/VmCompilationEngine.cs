@@ -154,9 +154,24 @@ namespace JackToVmCompiler.CompilationEngine.VM
             }
         }
 
-        public void CompileExpressionList()
+        public int CompileExpressionList()
         {
-            throw new NotImplementedException();
+            int argumentsCount = 0;
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception($"Expected {LexicalTables.OpenParenthesis} in expressionList");
+
+            while (NextToken != LexicalTables.CloseParenthesis)
+            {
+                CompileExpression();
+                argumentsCount++;
+                if (NextToken == LexicalTables.Coma)
+                    _tokenizer.Next();
+            }
+
+            _tokenizer.Next();
+
+            return argumentsCount;
         }
 
         public void CompileIf()
@@ -361,7 +376,50 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileSubroutineCall()
         {
-            throw new NotImplementedException();
+            string typeName;
+            string routineFullNameToCall;
+            int argumentsCount;
+            switch (NextToken)
+            {
+                case ".":
+                    var entry = _symbolTable.GetEntrySafe(CurrentToken);
+                    var tokenForEntry = CurrentToken;
+
+                    _tokenizer.Next(); // go to dot (.)
+                    _tokenizer.Next(); // go to func name
+
+                    typeName = entry.Type != null ? entry.Type : tokenForEntry;
+                    routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
+
+                    // in case it`s not Func call, but Method call ( entry is not null ) ,
+                    // entry`s pointer should be put onto stack first
+                    if(entry != null)
+                        _vmWriter.WritePush(entry.Kind.ToSegmentKind(), entry.Index);
+
+                    argumentsCount = CompileExpressionList(); // compile all arguments and put them onto the stack
+                    if (entry != null)
+                        argumentsCount++;
+
+                    // call routineFullNameToCall with nArguments = CompileExpressionList amount ( +1 in case entry isn`t null )
+                    _vmWriter.WriteCall(routineFullNameToCall, argumentsCount);
+
+                    break;
+
+                case "(":
+                    // AppendWithOffset(CurrentSubroutineName);
+                    typeName = _symbolTable.CurrentClass;
+                    routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
+                    _vmWriter.WritePush(SegmentKind.This, 0);
+
+                    argumentsCount = CompileExpressionList() + 1; // +1 because we call local instance method
+
+                    _vmWriter.WriteCall(routineFullNameToCall, argumentsCount);
+                    
+                    break;
+                default:
+                    throw new Exception("Expected . or ( in subroutine call");
+
+            }
         }
 
         public void CompileTerm()
@@ -370,7 +428,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             if (LexicalTables.IsIntegerConstant(CurrentToken))
             {
-                // Push const 
                 _vmWriter.WritePush(VMWriter.SegmentKind.Const, _tokenizer.GetIntConst());
             }
             else if (LexicalTables.IsStringConstant(CurrentToken))
@@ -381,7 +438,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
             else if (LexicalTables.IsConstantKeyWord(CurrentToken))
             {
                 VmTranslationUtil.WritePushKeywordConstant(CurrentToken, _vmWriter);
-                // AppendWithOffset(CurrentKeyWordConstant);
             }
             else if (_tokenizer.GetTokenType() == TokenType.Symbol
                 && LexicalTables.IsUnaryOperator(_tokenizer.GetSymbol()))
@@ -394,10 +450,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
             else if (NextToken == LexicalTables.OpenSquareBracket)
             {
                 var arrayEntry = _symbolTable.GetEntry(CurrentToken);
-                // AppendWithOffset(CurrentVarNameMarkUp);
                 _tokenizer.Next();
-                // AppendWithOffset(CurrentSymbolMarkUp);
-                // WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+                CompileExpression();
                 _tokenizer.Next();
 
                 // there is compiler should read value from that and push it into stack
@@ -412,18 +466,17 @@ namespace JackToVmCompiler.CompilationEngine.VM
             }
             else if (CurrentToken == LexicalTables.OpenParenthesis)
             {
-                // AppendWithOffset(CurrentSymbolMarkUp);
-                // WrapIntoMarkup(ExpressionMarkupName, CompileExpression);
+                CompileExpression();
                 _tokenizer.Next();
-                // AppendWithOffset(CurrentSymbolMarkUp);
             }
             else if (NextToken == LexicalTables.OpenParenthesis || NextToken == LexicalTables.Dot)
             {
-                // WrapIntoMarkup(SubroutineCallCompileMarkupName, CompileSubroutineCall);
+                CompileSubroutineCall();
             }
             else if (_tokenizer.GetTokenType() == TokenType.Identifier)
             {
-                // AppendWithOffset(CurrentVarNameMarkUp);
+                var entry = _symbolTable.GetEntry(CurrentToken);
+                _vmWriter.WritePush(entry.Kind.ToSegmentKind(), entry.Index);
             }
         }
 

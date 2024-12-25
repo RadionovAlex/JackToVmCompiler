@@ -37,5 +37,8 @@ namespace JackToVmCompiler.VMWriter
                     throw new Exception("Cannot parse unary operator");
             }
         }
+
+        internal static string MethodNameLabel(string typeName, string methodName) => 
+            $"{typeName}.{methodName}";
     }
 }
