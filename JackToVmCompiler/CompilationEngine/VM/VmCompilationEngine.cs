@@ -300,12 +300,10 @@ namespace JackToVmCompiler.CompilationEngine.VM
             _tokenizer.Next();
         }
 
-
         public void CompileWhile()
         {
             throw new NotImplementedException();
         }
-
 
         public void CompileReturn()
         {
@@ -452,12 +450,22 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             if (LexicalTables.IsIntegerConstant(CurrentToken))
             {
-                _vmWriter.WritePush(VMWriter.SegmentKind.Const, _tokenizer.GetIntConst());
+                _vmWriter.WritePush(SegmentKind.Const, _tokenizer.GetIntConst());
             }
             else if (LexicalTables.IsStringConstant(CurrentToken))
             {
-                // for each char in CurrentToken String.appendChar(char c) should be called
-                // AppendWithOffset(CurrentStringConstant);
+                var stringValue = LexicalTables.StringConstantRegex.Match(CurrentToken).Value;
+                _vmWriter.WritePush(SegmentKind.Const, stringValue.Length);
+                _vmWriter.WriteCall("String.new", 1);
+                var bytes = Encoding.ASCII.GetBytes(stringValue);
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    _vmWriter.WritePush(SegmentKind.Pointer, 0);
+                    _vmWriter.WritePush(SegmentKind.Const, bytes[i]);
+                    _vmWriter.WriteCall("String.appendChar", 2);
+                    if (i != bytes.Length - 1)
+                        _vmWriter.WritePop(SegmentKind.Temp, 0);
+                }
             }
             else if (LexicalTables.IsConstantKeyWord(CurrentToken))
             {
@@ -480,7 +488,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
                 // there is compiler should read value from that and push it into stack
                 // so before that, in compile expression, push should be made
-                // and than, arary entry`s address should be added 
+                // and than, array entry`s address should be added 
                 // and than pointer 1 ( that )  should point on this address 
                 // AppendWithOffset(CurrentSymbolMarkUp);
                 _vmWriter.WritePush(arrayEntry.Kind.ToSegmentKind(), arrayEntry.Index);

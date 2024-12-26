@@ -15,9 +15,9 @@ namespace JackToVmCompiler.Tokenizer
         public const string ComaAndDot = ";";
         public const string Equal = "=";
 
-        private static readonly Regex StringConstantRegex = new Regex("\"[^\n\"]*\"");
-        private static readonly Regex IdentifierRegex = new Regex("[a-zA-Z_][a-zA-Z0-9_]*");
-        private static readonly Regex IntegerConstantRegex = new Regex("^[0-9]+$");
+        public static readonly Regex StringConstantRegex = new Regex("\"[^\n\"]*\"");
+        public static readonly Regex IdentifierRegex = new Regex("[a-zA-Z_][a-zA-Z0-9_]*");
+        public readonly Regex IntegerConstantRegex = new Regex("^[0-9]+$");
 
 
         public static readonly Dictionary<string, KeyWordType> KeywordsMap = new Dictionary<string, KeyWordType>()
