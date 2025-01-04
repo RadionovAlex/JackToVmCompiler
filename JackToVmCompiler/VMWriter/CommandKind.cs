@@ -13,6 +13,8 @@
         And = 1 << 7,
         Or = 1 << 8,
         Not = 1 << 9,
+        Mult = 1 << 10,
+        Divide = 1 << 11,
         Geq = Gt | Eq,
         Leq = Lt | Eq,
     }
@@ -28,6 +30,8 @@
             {"<", CommandKind.Lt},
             {"&", CommandKind.And},
             {"|", CommandKind.Or},
+            {"*", CommandKind.Mult},
+            {"/", CommandKind.Divide},
         };
 
         internal static Dictionary<CommandKind, string> CommandKindNames = new Dictionary<CommandKind, string>()
@@ -43,6 +47,8 @@
             {CommandKind.And, "and"},
             {CommandKind.Or, "or"},
             {CommandKind.Not, "not"},
+            {CommandKind.Mult, "call Math.multiply 2" },
+            {CommandKind.Divide, "call Math.divide 2" },
         };
 
         internal static string ArithmeticCommandName(this CommandKind kind) => CommandKindNames[kind];
