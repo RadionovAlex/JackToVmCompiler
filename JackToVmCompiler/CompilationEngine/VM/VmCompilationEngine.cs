@@ -18,6 +18,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
         private VMWriter.VMWriter _vmWriter;
 
         private int _currentSubroutineLocalsNumber;
+        private int _currentSubroutineIfNumber;
+        private int _currentSubroutineWhileNumber;
 
         private string CurrentToken => _tokenizer.CurrentToken;
 
@@ -69,7 +71,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             _tokenizer.Next();
 
-            // expects {
             if (tokenType != TokenType.Symbol || _tokenizer.CurrentToken != LexicalTables.OpenBracket)
                 throw new Exception($"Expected class open brackets, but got {tokenType}, {_tokenizer.CurrentToken}");
 
@@ -118,20 +119,12 @@ namespace JackToVmCompiler.CompilationEngine.VM
             while (CurrentToken != LexicalTables.ComaAndDot)
             {
                 tokenType = _tokenizer.GetTokenType();
-                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
-                {
-                    // do noting
-                }
+                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma){}
 
                 else if (tokenType == TokenType.Identifier)
-                {
                     variablesOfType.Add(CurrentToken);
-                }
-
                 else
-                {
                     throw new Exception($"Expected coma or variableName but got: {tokenType}");
-                }
 
                 _tokenizer.Next();
             }
@@ -142,7 +135,16 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileDo()
         {
-            throw new NotImplementedException();
+            _tokenizer.Next();
+
+            CompileSubroutineCall();
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.ComaAndDot)
+                throw new Exception("Expected coma and dot");
+
+            _vmWriter.WritePop(SegmentKind.Temp, 0);
         }
 
         public void CompileExpression()
@@ -231,7 +233,53 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileIf()
         {
-            throw new NotImplementedException();
+            _currentSubroutineIfNumber++;
+            var label = $"{_symbolTable.CurrentRoutineName}IF{_currentSubroutineIfNumber}";
+            
+            _tokenizer.Next(); // skip if word
+
+            if (CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception("Expected open parenthessis");
+
+            CompileExpression();
+            _vmWriter.WriteArithmetic(CommandKind.Not);
+
+            _vmWriter.WriteIfGoTo(label); // - go to the end of the statements
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.CloseParenthesis)
+                throw new Exception("Expected close parenthessis");
+
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception("Expected open bracket");
+
+            CompileStatements();
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception("Expected close bracket");
+
+            _vmWriter.WriteLabel(label);
+
+            if (_tokenizer.GetNextTokenType() != TokenType.KeyWord || 
+                _tokenizer.GetNextKeywordType() != KeyWordType.Else)
+                return;
+
+            _tokenizer.Next(); // go to else
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception("Expected open bracket");
+
+            CompileStatements();
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception("Expected close bracket");
+
         }
 
         // logic is next: program remembers all the information
@@ -241,8 +289,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
         // pop "info" should be called;
         public void CompileLet()
         {
-            // AppendWithOffset(CurrentKeyWordMarkUp);
-
             _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.Identifier)
@@ -302,12 +348,45 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileWhile()
         {
-            throw new NotImplementedException();
+            _tokenizer.Next();
+            _currentSubroutineWhileNumber++;
+            var label = $"{_symbolTable.CurrentRoutineName}WHILE{_currentSubroutineWhileNumber}";
+
+            if (CurrentToken != LexicalTables.OpenParenthesis)
+                throw new Exception("Expected open parenthesis");
+
+            CompileExpression();
+
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.CloseParenthesis)
+                throw new Exception("Expected close parenthesis");
+
+            _vmWriter.WriteArithmetic(CommandKind.Not);
+
+            _vmWriter.WriteIfGoTo(label);
+
+            _tokenizer.Next();
+            if (CurrentToken != LexicalTables.OpenBracket)
+                throw new Exception("Expected open bracket");
+
+            CompileStatements();
+
+            _tokenizer.Next();
+
+            if (CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception("Expected close bracket");
+
+            _vmWriter.WriteLabel(label);
         }
 
         public void CompileReturn()
         {
-            throw new NotImplementedException();
+            if(NextToken != LexicalTables.ComaAndDot)
+                CompileExpression();
+            else
+                _vmWriter.WritePush(SegmentKind.Const, 0);
+
+            _vmWriter.WriteReturn();
         }
 
         public void CompileStatements()
@@ -356,9 +435,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
             if (tokenType == TokenType.KeyWord && !JackTokenizerUtil.IsValidProcedureTypeKeyWord(_tokenizer.GetKeyWordType()))
                 throw new Exception($"Expected var type as void, but {_tokenizer.GetKeyWordType()}");
 
-            var subroutineReturnType = CurrentToken; // it is required in case return type is void
-                                                     // - I should return 0 ( and maybe pop into temp 0 )
-
             _tokenizer.Next();
             tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.Identifier)
@@ -373,6 +449,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
             _vmWriter.WriteFunctionWithNumberTemplate(funcLabel); 
 
             _currentSubroutineLocalsNumber = 0;
+            _currentSubroutineIfNumber = 0;
+            _currentSubroutineWhileNumber = 0;
 
             CompileParameterList();
             _tokenizer.Next();
@@ -388,8 +466,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         private void CompileSubroutineBody()
         {
-            // AppendWithOffset(CurrentSymbolMarkUp);
-
             while (NextToken == "var")
                 CompileVarDec();
 
@@ -428,7 +504,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
                     break;
 
                 case "(":
-                    // AppendWithOffset(CurrentSubroutineName);
                     typeName = _symbolTable.CurrentClass;
                     routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
                     _vmWriter.WritePush(SegmentKind.This, 0);
@@ -490,7 +565,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 // so before that, in compile expression, push should be made
                 // and than, array entry`s address should be added 
                 // and than pointer 1 ( that )  should point on this address 
-                // AppendWithOffset(CurrentSymbolMarkUp);
                 _vmWriter.WritePush(arrayEntry.Kind.ToSegmentKind(), arrayEntry.Index);
                 _vmWriter.WriteArithmetic(CommandKind.Add);
                 _vmWriter.WritePop(SegmentKind.Pointer, 1);
@@ -532,18 +606,13 @@ namespace JackToVmCompiler.CompilationEngine.VM
             while (CurrentToken != ";")
             {
                 tokenType = _tokenizer.GetTokenType();
-                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma)
-                {
-                    // do nothing
-                }
+                if (tokenType == TokenType.Symbol && CurrentToken == LexicalTables.Coma) { }
+
                 else if (tokenType == TokenType.Identifier)
-                {
                     variableNamesList.Add(CurrentToken);
-                }
+
                 else
-                {
                     throw new Exception($"Expected coma or variableName but got: {tokenType}");
-                }
 
                 _tokenizer.Next();
             }

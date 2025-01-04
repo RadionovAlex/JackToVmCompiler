@@ -60,7 +60,7 @@ namespace JackToVmCompiler.VMWriter
 
         internal void WriteReturn()
         {
-
+            _sb.AppendLine($"return \n");
         }
 
         internal void Close()
