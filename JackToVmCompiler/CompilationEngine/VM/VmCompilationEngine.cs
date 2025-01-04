@@ -471,6 +471,12 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             // replace NLocals for funcName 
             _sb.Replace(VMWriter.VMWriter.TemplateName(funcLabel), _currentSubroutineLocalsNumber.ToString());
+
+            _tokenizer.Next();
+
+            tokenType = _tokenizer.GetTokenType();
+            if (tokenType != TokenType.Symbol || CurrentToken != LexicalTables.CloseBracket)
+                throw new Exception("Expected ckise bracket } of procedure ");
         }
 
         private void CompileSubroutineBody()
@@ -551,7 +557,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                     if (i != bytes.Length - 1)
                         _vmWriter.WritePop(SegmentKind.Temp, 0);
                 }
-                _vmWriter.WritePush(SegmentKind.Pointer, 0);
+                _vmWriter.WritePush(SegmentKind.Pointer, 0);    
             }
             else if (LexicalTables.IsConstantKeyWord(CurrentToken))
             {
