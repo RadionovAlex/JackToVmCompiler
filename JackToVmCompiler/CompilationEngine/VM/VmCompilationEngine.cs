@@ -443,6 +443,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         public void CompileSubroutine()
         {            
+            // in case it is constructor, MemoryAllocation should be called
+            // and returned address should be popped into pointer 0
             _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord && tokenType != TokenType.Identifier)
