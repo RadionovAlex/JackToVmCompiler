@@ -17,7 +17,7 @@
         internal static Dictionary<SegmentKind, string> KindNames = new Dictionary<SegmentKind, string>()
         {
             {SegmentKind.Const, "constant"},
-            {SegmentKind.Arg, "arg"},
+            {SegmentKind.Arg, "argument"},
             {SegmentKind.Local, "local"},
             {SegmentKind.Static, "static"},
             {SegmentKind.This, "this"},
