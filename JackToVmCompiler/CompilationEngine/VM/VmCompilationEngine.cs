@@ -390,6 +390,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 _vmWriter.WritePush(SegmentKind.Const, 0);
 
             _vmWriter.WriteReturn();
+
+            _tokenizer.Next();
         }
 
         public void CompileStatements()
