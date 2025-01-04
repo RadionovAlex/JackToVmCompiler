@@ -33,7 +33,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
             var pathDirectory = Path.GetDirectoryName(sourcePath);
             var fileName = Path.GetFileNameWithoutExtension(sourcePath);
             _symbolTable = new SymbolTable(fileName);
-            _outputFilePath = $"{Path.Combine(pathDirectory, fileName)}.xml";
+            _outputFilePath = $"{Path.Combine(pathDirectory, fileName)}.vm";
         }
         public void Compile()
         {
@@ -353,11 +353,13 @@ namespace JackToVmCompiler.CompilationEngine.VM
         {
             _tokenizer.Next();
             _currentSubroutineWhileNumber++;
-            var label = $"{_symbolTable.CurrentRoutineName}WHILE{_currentSubroutineWhileNumber}";
+            var labelAfterWhile = $"{_symbolTable.CurrentRoutineName}NOTWHILE{_currentSubroutineWhileNumber}";
+            var labelWhile= $"{_symbolTable.CurrentRoutineName}WHILE{_currentSubroutineWhileNumber}";
 
             if (CurrentToken != LexicalTables.OpenParenthesis)
                 throw new Exception("Expected open parenthesis");
 
+            _vmWriter.WriteLabel(labelWhile);
             CompileExpression();
 
             _tokenizer.Next();
@@ -366,7 +368,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             _vmWriter.WriteArithmetic(CommandKind.Not);
 
-            _vmWriter.WriteIfGoTo(label);
+            _vmWriter.WriteIfGoTo(labelAfterWhile);
 
             _tokenizer.Next();
             if (CurrentToken != LexicalTables.OpenBracket)
@@ -374,12 +376,14 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             CompileStatements();
 
+            _vmWriter.WriteGoTo(labelWhile);
+
             _tokenizer.Next();
 
             if (CurrentToken != LexicalTables.CloseBracket)
                 throw new Exception("Expected close bracket");
 
-            _vmWriter.WriteLabel(label);
+            _vmWriter.WriteLabel(labelAfterWhile);
         }
 
         public void CompileReturn()
@@ -535,10 +539,11 @@ namespace JackToVmCompiler.CompilationEngine.VM
             else if (LexicalTables.IsStringConstant(CurrentToken))
             {
                 var stringValue = LexicalTables.StringConstantRegex.Match(CurrentToken).Value;
-                _vmWriter.WritePush(SegmentKind.Const, stringValue.Length);
+                _vmWriter.WritePush(SegmentKind.Const, stringValue.Length - 2); // -2 because of ""
                 _vmWriter.WriteCall("String.new", 1);
+                _vmWriter.WritePop(SegmentKind.Pointer, 0);
                 var bytes = Encoding.ASCII.GetBytes(stringValue);
-                for (var i = 0; i < bytes.Length; i++)
+                for (var i = 1; i < bytes.Length -1 ; i++) // start and end is " and " 
                 {
                     _vmWriter.WritePush(SegmentKind.Pointer, 0);
                     _vmWriter.WritePush(SegmentKind.Const, bytes[i]);
