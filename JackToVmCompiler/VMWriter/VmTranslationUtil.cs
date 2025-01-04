@@ -10,7 +10,8 @@ namespace JackToVmCompiler.VMWriter
             switch (keyWordType)
             {
                 case KeyWordType.True:
-                    vmWriter.WritePush(SegmentKind.Const, 1);
+                    vmWriter.WritePush(SegmentKind.Const, 0);
+                    vmWriter.WriteArithmetic(CommandKind.Not);
                     break;
 
                 case KeyWordType.False:
