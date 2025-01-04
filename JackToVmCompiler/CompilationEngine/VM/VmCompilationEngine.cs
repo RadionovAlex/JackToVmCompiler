@@ -555,17 +555,12 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 var stringValue = LexicalTables.StringConstantRegex.Match(CurrentToken).Value;
                 _vmWriter.WritePush(SegmentKind.Const, stringValue.Length - 2); // -2 because of ""
                 _vmWriter.WriteCall("String.new", 1);
-                _vmWriter.WritePop(SegmentKind.Pointer, 0);
                 var bytes = Encoding.ASCII.GetBytes(stringValue);
                 for (var i = 1; i < bytes.Length -1 ; i++) // start and end is " and " 
                 {
-                    _vmWriter.WritePush(SegmentKind.Pointer, 0);
                     _vmWriter.WritePush(SegmentKind.Const, bytes[i]);
                     _vmWriter.WriteCall("String.appendChar", 2);
-                    if (i != bytes.Length - 1)
-                        _vmWriter.WritePop(SegmentKind.Temp, 0);
                 }
-                _vmWriter.WritePush(SegmentKind.Pointer, 0);    
             }
             else if (LexicalTables.IsConstantKeyWord(CurrentToken))
             {
