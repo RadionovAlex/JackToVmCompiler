@@ -273,7 +273,11 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             if (_tokenizer.GetNextTokenType() != TokenType.KeyWord || 
                 _tokenizer.GetNextKeywordType() != KeyWordType.Else)
+            {
+                _vmWriter.WriteLabel(ifFinishedLabel);
                 return;
+            }
+                
 
             _tokenizer.Next(); // go to else
             _tokenizer.Next();
@@ -288,7 +292,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 throw new Exception("Expected close bracket");
 
             _vmWriter.WriteLabel(ifFinishedLabel);
-
         }
 
         // logic is next: program remembers all the information
