@@ -238,13 +238,15 @@ namespace JackToVmCompiler.CompilationEngine.VM
         {
             _currentSubroutineIfNumber++;
             var label = $"{_symbolTable.CurrentRoutineName}IF{_currentSubroutineIfNumber}";
-            
+            var ifFinishedLabel = $"{_symbolTable.CurrentRoutineName}IFFinished{_currentSubroutineIfNumber}";
+
             _tokenizer.Next(); // skip if word
 
             if (CurrentToken != LexicalTables.OpenParenthesis)
                 throw new Exception("Expected open parenthessis");
 
             CompileExpression();
+                
             _vmWriter.WriteArithmetic(CommandKind.Not);
 
             _vmWriter.WriteIfGoTo(label); // - go to the end of the statements
@@ -265,6 +267,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
             if (CurrentToken != LexicalTables.CloseBracket)
                 throw new Exception("Expected close bracket");
 
+            _vmWriter.WriteGoTo(ifFinishedLabel);
+
             _vmWriter.WriteLabel(label);
 
             if (_tokenizer.GetNextTokenType() != TokenType.KeyWord || 
@@ -282,6 +286,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             if (CurrentToken != LexicalTables.CloseBracket)
                 throw new Exception("Expected close bracket");
+
+            _vmWriter.WriteLabel(ifFinishedLabel);
 
         }
 
