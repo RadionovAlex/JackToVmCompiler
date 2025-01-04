@@ -551,6 +551,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                     if (i != bytes.Length - 1)
                         _vmWriter.WritePop(SegmentKind.Temp, 0);
                 }
+                _vmWriter.WritePush(SegmentKind.Pointer, 0);
             }
             else if (LexicalTables.IsConstantKeyWord(CurrentToken))
             {
