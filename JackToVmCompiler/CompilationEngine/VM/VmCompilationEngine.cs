@@ -454,6 +454,11 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 var fieldsAmount = _symbolTable.ScopeVarCount(SymbolKind.Field);
                 _vmWriter.WritePush(SegmentKind.Const, fieldsAmount);
                 _vmWriter.WriteCall("Memory.alloc", 1);
+                _vmWriter.WritePop(SegmentKind.Pointer, 0);
+            }
+            else if(keyWordType == KeyWordType.Method)
+            {
+                _vmWriter.WritePop(SegmentKind.Pointer, 0); 
             }
             
             _tokenizer.Next();
@@ -540,7 +545,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 case "(":
                     typeName = _symbolTable.CurrentClass;
                     routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
-                    _vmWriter.WritePush(SegmentKind.This, 0);
+                    _vmWriter.WritePush(SegmentKind.Pointer, 0);
 
                     argumentsCount = CompileExpressionList() + 1; // +1 because we call local instance method
 
