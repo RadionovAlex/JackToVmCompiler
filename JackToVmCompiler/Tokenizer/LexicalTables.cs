@@ -17,7 +17,7 @@ namespace JackToVmCompiler.Tokenizer
 
         public static readonly Regex StringConstantRegex = new Regex("\"[^\n\"]*\"");
         public static readonly Regex IdentifierRegex = new Regex("[a-zA-Z_][a-zA-Z0-9_]*");
-        public readonly Regex IntegerConstantRegex = new Regex("^[0-9]+$");
+        public static readonly Regex IntegerConstantRegex = new Regex("^[0-9]+$");
 
 
         public static readonly Dictionary<string, KeyWordType> KeywordsMap = new Dictionary<string, KeyWordType>()

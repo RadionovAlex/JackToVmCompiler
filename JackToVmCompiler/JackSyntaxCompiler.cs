@@ -1,4 +1,5 @@
 ﻿using JackToVmCompiler.CompilationEngine;
+using JackToVmCompiler.CompilationEngine.VM;
 using JackToVmCompiler.CompilationEngine.Xml;
 using JackToVmCompiler.Tokenizer;
 using JackToVmCompiler.Utils;
@@ -58,7 +59,7 @@ namespace JackToVmCompiler
                 var text = await File.ReadAllTextAsync(path);
                 var cleanLines = TextUtils.ClearTextFromSpacesAndComments(text);
                 var tokenizer = new JackTokenizer(cleanLines);
-                var compilationEngine = new XmlCompilationEngine(path, tokenizer);
+                var compilationEngine = new VmCompilationEngine (path, tokenizer);
                 compilationEngine.Compile();
 
                 return true;

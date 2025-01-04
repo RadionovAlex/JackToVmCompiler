@@ -57,6 +57,8 @@ namespace JackToVmCompiler.CompilationEngine.VM
                         break;
                 }
             }
+
+            _vmWriter.Close();
         }
 
         public void CompileClass()
@@ -71,6 +73,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
             _tokenizer.Next();
 
+            tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.Symbol || _tokenizer.CurrentToken != LexicalTables.OpenBracket)
                 throw new Exception($"Expected class open brackets, but got {tokenType}, {_tokenizer.CurrentToken}");
 
@@ -486,7 +489,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                     _tokenizer.Next(); // go to dot (.)
                     _tokenizer.Next(); // go to func name
 
-                    typeName = entry.Type != null ? entry.Type : tokenForEntry;
+                    typeName = entry?.Type != null ? entry.Type : tokenForEntry;
                     routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
 
                     // in case it`s not Func call, but Method call ( entry is not null ) ,
