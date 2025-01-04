@@ -442,9 +442,17 @@ namespace JackToVmCompiler.CompilationEngine.VM
         }
 
         public void CompileSubroutine()
-        {            
+        {
+            var keyWordType = _tokenizer.GetKeyWordType();
             // in case it is constructor, MemoryAllocation should be called
             // and returned address should be popped into pointer 0
+            if (keyWordType == KeyWordType.Constructor)
+            {
+                var fieldsAmount = _symbolTable.ScopeVarCount(SymbolKind.Field);
+                _vmWriter.WritePush(SegmentKind.Const, fieldsAmount);
+                _vmWriter.WriteCall("Memory.alloc", 1);
+            }
+            
             _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord && tokenType != TokenType.Identifier)

@@ -18,6 +18,10 @@ namespace JackToVmCompiler.VMWriter
                 case KeyWordType.Null:
                     vmWriter.WritePush(SegmentKind.Const, 0);
                     break;
+
+                case KeyWordType.This:
+                    vmWriter.WritePush(SegmentKind.Pointer, 0);
+                    break;
                     
                 default:
                     throw new Exception($"cannot write KeywordConstant {keyWordType}");
