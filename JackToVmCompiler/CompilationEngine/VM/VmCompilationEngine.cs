@@ -447,20 +447,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
         public void CompileSubroutine()
         {
             var keyWordType = _tokenizer.GetKeyWordType();
-            // in case it is constructor, MemoryAllocation should be called
-            // and returned address should be popped into pointer 0
-            if (keyWordType == KeyWordType.Constructor)
-            {
-                var fieldsAmount = _symbolTable.ScopeVarCount(SymbolKind.Field);
-                _vmWriter.WritePush(SegmentKind.Const, fieldsAmount);
-                _vmWriter.WriteCall("Memory.alloc", 1);
-                _vmWriter.WritePop(SegmentKind.Pointer, 0);
-            }
-            else if(keyWordType == KeyWordType.Method)
-            {
-                _vmWriter.WritePop(SegmentKind.Pointer, 0); 
-            }
-            
+          
             _tokenizer.Next();
             var tokenType = _tokenizer.GetTokenType();
             if (tokenType != TokenType.KeyWord && tokenType != TokenType.Identifier)
@@ -479,11 +466,24 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 (_symbolTable.CurrentClass, _symbolTable.CurrentRoutineName);
 
             // paste funcName without NLocals
-            _vmWriter.WriteFunctionWithNumberTemplate(funcLabel); 
+            _vmWriter.WriteFunctionWithNumberTemplate(funcLabel);
+
+            // in case it is constructor, MemoryAllocation should be called
+            // and returned address should be popped into pointer 0
+            if (keyWordType == KeyWordType.Constructor)
+            {
+                var fieldsAmount = _symbolTable.ScopeVarCount(SymbolKind.Field);
+                _vmWriter.WritePush(SegmentKind.Const, fieldsAmount);
+                _vmWriter.WriteCall("Memory.alloc", 1);
+                _vmWriter.WritePop(SegmentKind.Pointer, 0);
+            }
+            else if (keyWordType == KeyWordType.Method)
+            {
+                _vmWriter.WritePush(SegmentKind.Arg, 0);
+                _vmWriter.WritePop(SegmentKind.Pointer, 0);
+            }
 
             _currentSubroutineLocalsNumber = 0;
-            _currentSubroutineIfNumber = 0;
-            _currentSubroutineWhileNumber = 0;
 
             CompileParameterList();
             _tokenizer.Next();
@@ -545,8 +545,9 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 case "(":
                     typeName = _symbolTable.CurrentClass;
                     routineFullNameToCall = VmTranslationUtil.MethodNameLabel(typeName, CurrentToken);
-                    _vmWriter.WritePush(SegmentKind.Pointer, 0);
 
+
+                    _vmWriter.WritePush(SegmentKind.Pointer, 0);
                     argumentsCount = CompileExpressionList() + 1; // +1 because we call local instance method
 
                     _vmWriter.WriteCall(routineFullNameToCall, argumentsCount);
