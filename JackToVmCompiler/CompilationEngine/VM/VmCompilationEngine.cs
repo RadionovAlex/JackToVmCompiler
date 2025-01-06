@@ -463,7 +463,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
                 throw new Exception("Expected identifier as name of function");
 
             var subroutineName = CurrentToken;
-            _symbolTable.HandleNewRoutine(subroutineName);
+            _symbolTable.HandleNewRoutine(subroutineName, keyWordType == KeyWordType.Method);
             var funcLabel = VmTranslationUtil.MethodNameLabel
                 (_symbolTable.CurrentClass, _symbolTable.CurrentRoutineName);
 

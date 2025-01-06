@@ -4,11 +4,13 @@ namespace JackToVmCompiler.VMWriter
 {
     internal static class VmTranslationUtil
     {
+       
         internal static void WritePushKeywordConstant(string token, VMWriter vmWriter)
         {
             var keyWordType = LexicalTables.ConstantKeyWordMap[token];
             switch (keyWordType)
             {
+                //todo: check how true is passing in different scenarios
                 case KeyWordType.True:
                     vmWriter.WritePush(SegmentKind.Const, 0);
                     vmWriter.WriteArithmetic(CommandKind.Not);

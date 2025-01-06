@@ -18,11 +18,14 @@
 
     internal class SymbolTable
     {
+        // todo: in case it is method, first argument is pointer to instance
+        // so index for args should start from 1
         private Dictionary<string, Entry> _classSymbols = new ();
         private Dictionary<string, Entry> _routineSymbols = new ();
 
         private string _currentClassName;
         private string _currentRoutineName;
+        private int _additionalArgIndex;
 
         public string CurrentClass => _currentClassName;
         public string CurrentRoutineName => _currentRoutineName;
@@ -38,10 +41,14 @@
             _classSymbols.Clear();
         } 
 
-        internal void HandleNewRoutine(string routineName)
+        internal void HandleNewRoutine(string routineName, bool isMethod)
         {
             _currentRoutineName = routineName;
             _routineSymbols.Clear();
+            if (isMethod)
+                _additionalArgIndex = 1;
+            else
+                _additionalArgIndex = 0;
         }
         
         internal void Define(string name, string type, SymbolKind symbolKind)
@@ -73,8 +80,10 @@
                     return _classSymbols.Values.Count(x => x.Kind == symbolKind);
 
                 case SymbolKind.Arg:
+                    return _routineSymbols.Values.Count(x => x.Kind == symbolKind) + _additionalArgIndex;
                 case SymbolKind.Var:
                     return _routineSymbols.Values.Count(x => x.Kind == symbolKind);
+
                 default:
                     throw new Exception($"Cannot handle symbol kind {symbolKind}");
             }
