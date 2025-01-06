@@ -19,7 +19,6 @@ namespace JackToVmCompiler.CompilationEngine.VM
 
         private int _currentSubroutineLocalsNumber;
         private int _currentSubroutineIfNumber;
-        private int _currentSubroutineWhileNumber;
 
         private string CurrentToken => _tokenizer.CurrentToken;
 
@@ -237,8 +236,9 @@ namespace JackToVmCompiler.CompilationEngine.VM
         public void CompileIf()
         {
             _currentSubroutineIfNumber++;
-            var label = $"{_symbolTable.CurrentRoutineName}IF{_currentSubroutineIfNumber}";
-            var ifFinishedLabel = $"{_symbolTable.CurrentRoutineName}IFFinished{_currentSubroutineIfNumber}";
+            var label = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
+            _currentSubroutineIfNumber++;
+            var ifFinishedLabel = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
 
             _tokenizer.Next(); // skip if word
 
@@ -361,10 +361,12 @@ namespace JackToVmCompiler.CompilationEngine.VM
         public void CompileWhile()
         {
             _tokenizer.Next();
-            _currentSubroutineWhileNumber++;
-            var labelAfterWhile = $"{_symbolTable.CurrentRoutineName}NOTWHILE{_currentSubroutineWhileNumber}";
-            var labelWhile= $"{_symbolTable.CurrentRoutineName}WHILE{_currentSubroutineWhileNumber}";
 
+            _currentSubroutineIfNumber++;
+            var labelWhile = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
+            _currentSubroutineIfNumber++;
+            var labelAfterWhile = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
+            
             if (CurrentToken != LexicalTables.OpenParenthesis)
                 throw new Exception("Expected open parenthesis");
 

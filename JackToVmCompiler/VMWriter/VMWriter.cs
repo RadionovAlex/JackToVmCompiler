@@ -15,52 +15,52 @@ namespace JackToVmCompiler.VMWriter
 
         internal void WritePush(SegmentKind segment, int index)
         {
-            _sb.AppendLine($"push {segment.SegmentName()} {index} \n");
+            _sb.AppendLine($"push {segment.SegmentName()} {index}");
         }
 
         internal void WritePop(SegmentKind segment, int index)
         {
-            _sb.AppendLine($"pop {segment.SegmentName()} {index} \n");
+            _sb.AppendLine($"pop {segment.SegmentName()} {index}");
         }
 
         internal void WriteArithmetic(CommandKind command)
         {
-            _sb.AppendLine($"{command.ArithmeticCommandName()} \n");
+            _sb.AppendLine($"{command.ArithmeticCommandName()}");
         }
 
         internal void WriteLabel(string label)
         {
-            _sb.AppendLine($"label {label} \n");
+            _sb.AppendLine($"label {label}");
         }
 
         internal void WriteGoTo(string goToLabel)
         {
-            _sb.AppendLine($"goto {goToLabel} \n");
+            _sb.AppendLine($"goto {goToLabel}");
         }
 
         internal void WriteIfGoTo(string goToLabel)
         {
-            _sb.AppendLine($"if-goto {goToLabel} \n");
+            _sb.AppendLine($"if-goto {goToLabel}");
         }        
 
         internal void WriteCall(string name, int nArgs)
         {
-            _sb.AppendLine($"call {name} {nArgs} \n");
+            _sb.AppendLine($"call {name} {nArgs}");
         }
 
         internal void WriteFunction(string name, int nLocals)
         {
-            _sb.AppendLine($"function {name} {nLocals} \n");
+            _sb.AppendLine($"function {name} {nLocals}");
         }
 
         internal void WriteFunctionWithNumberTemplate(string name)
         {
-            _sb.AppendLine($"function {name} {TemplateName(name)} \n");
+            _sb.AppendLine($"function {name} {TemplateName(name)}");
         }
 
         internal void WriteReturn()
         {
-            _sb.AppendLine($"return \n");
+            _sb.AppendLine($"return");
         }
 
         internal void Close()
