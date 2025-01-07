@@ -18,7 +18,7 @@ namespace JackToVmCompiler.CompilationEngine.VM
         private VMWriter.VMWriter _vmWriter;
 
         private int _currentSubroutineLocalsNumber;
-        private int _currentSubroutineIfNumber;
+        private int _currentSubroutineIfNumber = -1;
 
         private string CurrentToken => _tokenizer.CurrentToken;
 
@@ -236,10 +236,11 @@ namespace JackToVmCompiler.CompilationEngine.VM
         public void CompileIf()
         {
             _currentSubroutineIfNumber++;
-            var label = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
-            _currentSubroutineIfNumber++;
             var ifFinishedLabel = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
 
+            _currentSubroutineIfNumber++;
+            var label = $"{_symbolTable.CurrentClass}_{_currentSubroutineIfNumber}";
+           
             _tokenizer.Next(); // skip if word
 
             if (CurrentToken != LexicalTables.OpenParenthesis)

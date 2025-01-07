@@ -6,6 +6,8 @@ namespace JackToVmCompiler.VMWriter
     {
         private StringBuilder _sb;
 
+        private const string Offset = "    ";
+
         internal static string TemplateName(string funcName) => $"#n_locals_for_{funcName}#";
 
         internal VMWriter(StringBuilder sb)
@@ -15,17 +17,17 @@ namespace JackToVmCompiler.VMWriter
 
         internal void WritePush(SegmentKind segment, int index)
         {
-            _sb.AppendLine($"push {segment.SegmentName()} {index}");
+            _sb.AppendLine($"{Offset}push {segment.SegmentName()} {index}");
         }
 
         internal void WritePop(SegmentKind segment, int index)
         {
-            _sb.AppendLine($"pop {segment.SegmentName()} {index}");
+            _sb.AppendLine($"{Offset}pop {segment.SegmentName()} {index}");
         }
 
         internal void WriteArithmetic(CommandKind command)
         {
-            _sb.AppendLine($"{command.ArithmeticCommandName()}");
+            _sb.AppendLine($"{Offset}{command.ArithmeticCommandName()}");
         }
 
         internal void WriteLabel(string label)
@@ -35,17 +37,17 @@ namespace JackToVmCompiler.VMWriter
 
         internal void WriteGoTo(string goToLabel)
         {
-            _sb.AppendLine($"goto {goToLabel}");
+            _sb.AppendLine($"{Offset}goto {goToLabel}");
         }
 
         internal void WriteIfGoTo(string goToLabel)
         {
-            _sb.AppendLine($"if-goto {goToLabel}");
+            _sb.AppendLine($"{Offset}if-goto {goToLabel}");
         }        
 
         internal void WriteCall(string name, int nArgs)
         {
-            _sb.AppendLine($"call {name} {nArgs}");
+            _sb.AppendLine($"{Offset}call {name} {nArgs}");
         }
 
         internal void WriteFunction(string name, int nLocals)
@@ -60,7 +62,7 @@ namespace JackToVmCompiler.VMWriter
 
         internal void WriteReturn()
         {
-            _sb.AppendLine($"return");
+            _sb.AppendLine($"{Offset}return");
         }
 
         internal void Close()
