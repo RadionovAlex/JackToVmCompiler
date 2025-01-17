@@ -4,32 +4,32 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
-    static int _freeMemoryAddress;
-    static int _ramBase;
-    static int _ramMax;
-    static Array _memoryCells;
+    static int freeMemoryAddress;
+    static int ramBase;
+    static int ramMax;
+    static Array memoryCells;
 
     function void init() 
     {
-        _memoryCells = 0;
-        _freeMemoryAddress = 0;
-        _ramBase = 2048;    
-        _ramMax = 16383;
+        let memoryCells = 0;
+        let freeMemoryAddress = 0;
+        let ramBase = 2048;    
+        let ramMax = 16383;
         return;
     }
 
     function int peek(int address) 
     {
-        return _memoryCells[address];
+        return memoryCells[address];
     }
 
     function void poke(int address, int value) 
     {
-        _memoryCells[address] = value;
+        let memoryCells[address] = value;
         return;
     }
 
-    function int alloc(int size) 
+    function Array alloc(int size) 
     {
         var int smallestAddress;
         var int previousAddress;
@@ -42,25 +42,25 @@ class Memory {
         var int allocatedSize;
         var int newBlockAddress;
 
-        if (size <= 0)
+        if (size < 0)
         {
-            do Sys.Error("Incorrect size");
+            // do Sys.Error("Incorrect size");
             return -1;
         }
 
-        if (_freeMemoryAddress = 0)
+        if (freeMemoryAddress = 0)
         {
             return Memory.allocFromNotUsedRam(size);
         }
 
         let smallestAddress = 0;
         let previousAddress = 0;
-        let currentAddress = _freeMemoryAddress;
+        let currentAddress = freeMemoryAddress;
         
         while (currentAddress > 0)
         {
             let currentSize = Memory.peek(currentAddress + 1);
-            if (currentSize >= size)
+            if (~(currentSize < size))
             {
                 if (Memory.peek(smallestAddress + 1) = 0)
                 {
@@ -93,10 +93,10 @@ class Memory {
 
         if (leftOverSize < 1)
         {
-            allocatedSize = Memory.peek(smallestAddress + 1);
+            let allocatedSize = Memory.peek(smallestAddress + 1);
             if (beforeSmallestAddress = 0)
             {
-                let _freeMemoryAddress = smallestAddress; // it was first memory block
+                let freeMemoryAddress = smallestAddress; // it was first memory block
             }
             else 
             {
@@ -114,7 +114,7 @@ class Memory {
 
             if (beforeSmallestAddress = 0)
             {
-                let _freeMemoryAddress = smallestAddress;
+                let freeMemoryAddress = smallestAddress;
             }
             else
             {
@@ -124,7 +124,8 @@ class Memory {
             do Memory.poke(newBlockAddress, Memory.peek(smallestAddress));
         }
 
-        Memory.poke(smallestAddress+1, allocatedSize);
+        do Memory.poke(smallestAddress+1, allocatedSize);
+
         return smallestAddress;
     }
 
@@ -135,16 +136,15 @@ class Memory {
         var int curAddress;
         var int prevAddress;
          
-        if(_freeMemoryAddress = 0)
+        if(freeMemoryAddress = 0)
         {
-            _freeMemoryAddress = o-2;
+            let freeMemoryAddress = o-2;
             do Memory.poke(o-2, 0); // clear previous link
             return;
         }
 
-        let curAddress = _freeMemoryAddress;
+        let curAddress = freeMemoryAddress;
         let prevAddress = 0;
-        let isConnectedSomeWhere = false;
 
         // simple defragmentation
         while(curAddress > 0)
@@ -153,7 +153,7 @@ class Memory {
             {
                 if(prevAddress = 0)
                 {
-                   _freeMemoryAddress = o - 2;
+                   let freeMemoryAddress = o - 2;
                 }
                 else
                 {
@@ -167,28 +167,30 @@ class Memory {
                 do Memory.poke(curAddress + 1, Memory.peek(curAddress+1) + 2 + Memory.peek(o-1));
             }
 
-            prevAddress = curAddress;
-            curAddress = Memory.peek(curAddress);
+            let prevAddress = curAddress;
+            let curAddress = Memory.peek(curAddress);
         }
 
         do Memory.poke(curAddress, o-2);
         do Memory.poke(o-2, 0); // clear previous link
+
+        return;
     }    
 
     function int allocFromNotUsedRam(int size)
     {
        var int allocatedAddr;
-        if(_ramBase + size > _ramMax - 2)
+        if(ramBase + size > ramMax - 2)
         {
-            do Sys.Error("No memory");
+            // do Sys.Error("No memory");
             return -1;
         }
 
-        let allocatedAddr = _ramBase;
-        Memory.Poke(_ramBase, 0);
-        Memory.Poke(_ramBase + 1, size);
+        let allocatedAddr = ramBase;
+        do Memory.poke(ramBase, 0);
+        do Memory.poke(ramBase + 1, size);
 
-        let _ramBase = _ramBase + 2 + size;
+        let ramBase = ramBase + 2 + size;
             
         return allocatedAddr + 2;     
     }
