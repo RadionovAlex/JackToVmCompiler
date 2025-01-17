@@ -1,0 +1,195 @@
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+    static int _freeMemoryAddress;
+    static int _ramBase;
+    static int _ramMax;
+    static Array _memoryCells;
+
+    function void init() 
+    {
+        _memoryCells = 0;
+        _freeMemoryAddress = 0;
+        _ramBase = 2048;    
+        _ramMax = 16383;
+        return;
+    }
+
+    function int peek(int address) 
+    {
+        return _memoryCells[address];
+    }
+
+    function void poke(int address, int value) 
+    {
+        _memoryCells[address] = value;
+        return;
+    }
+
+    function int alloc(int size) 
+    {
+        var int smallestAddress;
+        var int previousAddress;
+        var int beforeSmallestAddress;
+        var int currentAddress;
+        var int currentSize;
+        var int allocatedAddress;
+
+        var int leftOverSize;
+        var int allocatedSize;
+        var int newBlockAddress;
+
+        if (size <= 0)
+        {
+            do Sys.Error("Incorrect size");
+            return -1;
+        }
+
+        if (_freeMemoryAddress = 0)
+        {
+            return Memory.allocFromNotUsedRam(size);
+        }
+
+        let smallestAddress = 0;
+        let previousAddress = 0;
+        let currentAddress = _freeMemoryAddress;
+        
+        while (currentAddress > 0)
+        {
+            let currentSize = Memory.peek(currentAddress + 1);
+            if (currentSize >= size)
+            {
+                if (Memory.peek(smallestAddress + 1) = 0)
+                {
+                    let smallestAddress = currentAddress;
+                    let beforeSmallestAddress = previousAddress;
+                }
+                else 
+                {
+                    if (currentSize < Memory.peek(smallestAddress + 1))
+                    {
+                        let smallestAddress = currentAddress;
+                        let beforeSmallestAddress = previousAddress;
+                    }
+                }
+            }
+
+            let previousAddress = currentAddress;
+            // by addr[currentAddress] there is value of next address
+            let currentAddress = Memory.peek(currentAddress); 
+        }
+
+        if (Memory.peek(smallestAddress + 1) < size)
+        {
+            return Memory.allocFromNotUsedRam(size);
+        }
+
+        // need to relink memory blocks with each other and then - return free
+        let allocatedSize = size;
+        let leftOverSize = Memory.peek(smallestAddress + 1) - size - 2;
+
+        if (leftOverSize < 1)
+        {
+            allocatedSize = Memory.peek(smallestAddress + 1);
+            if (beforeSmallestAddress = 0)
+            {
+                let _freeMemoryAddress = smallestAddress; // it was first memory block
+            }
+            else 
+            {
+                do Memory.poke(beforeSmallestAddress, smallestAddress);
+            }
+        }
+        else
+        {
+            // need to create a new block instead of old, smaller one. 
+            // then connect previous one to it. 
+            // then connect new one to the next 
+
+            let newBlockAddress = smallestAddress + 2 + allocatedSize;
+            do Memory.poke(newBlockAddress + 1, leftOverSize); 
+
+            if (beforeSmallestAddress = 0)
+            {
+                let _freeMemoryAddress = smallestAddress;
+            }
+            else
+            {
+                do Memory.poke(beforeSmallestAddress, newBlockAddress);
+            }
+
+            do Memory.poke(newBlockAddress, Memory.peek(smallestAddress));
+        }
+
+        Memory.poke(smallestAddress+1, allocatedSize);
+        return smallestAddress;
+    }
+
+     /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) 
+    {
+        var int curAddress;
+        var int prevAddress;
+         
+        if(_freeMemoryAddress = 0)
+        {
+            _freeMemoryAddress = o-2;
+            do Memory.poke(o-2, 0); // clear previous link
+            return;
+        }
+
+        let curAddress = _freeMemoryAddress;
+        let prevAddress = 0;
+        let isConnectedSomeWhere = false;
+
+        // simple defragmentation
+        while(curAddress > 0)
+        {
+            if(o + Memory.peek(o-1) = curAddress)
+            {
+                if(prevAddress = 0)
+                {
+                   _freeMemoryAddress = o - 2;
+                }
+                else
+                {
+                    do Memory.poke(prevAddress, o-2);
+                }
+
+                do Memory.poke(o-1, Memory.peek(o-1) + Memory.peek(curAddress + 1) + 2);     
+            }
+            else 
+            {
+                do Memory.poke(curAddress + 1, Memory.peek(curAddress+1) + 2 + Memory.peek(o-1));
+            }
+
+            prevAddress = curAddress;
+            curAddress = Memory.peek(curAddress);
+        }
+
+        do Memory.poke(curAddress, o-2);
+        do Memory.poke(o-2, 0); // clear previous link
+    }    
+
+    function int allocFromNotUsedRam(int size)
+    {
+       var int allocatedAddr;
+        if(_ramBase + size > _ramMax - 2)
+        {
+            do Sys.Error("No memory");
+            return -1;
+        }
+
+        let allocatedAddr = _ramBase;
+        Memory.Poke(_ramBase, 0);
+        Memory.Poke(_ramBase + 1, size);
+
+        let _ramBase = _ramBase + 2 + size;
+            
+        return allocatedAddr + 2;     
+    }
+}
