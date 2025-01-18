@@ -62,7 +62,7 @@ class Memory {
             let currentSize = Memory.peek(currentAddress + 1);
             if (~(currentSize < size))
             {
-                if (Memory.peek(smallestAddress + 1) = 0)
+                if (smallestAddress = 0)
                 {
                     let smallestAddress = currentAddress;
                     let beforeSmallestAddress = previousAddress;
@@ -82,7 +82,7 @@ class Memory {
             let currentAddress = Memory.peek(currentAddress); 
         }
 
-        if (Memory.peek(smallestAddress + 1) < size)
+        if (smallestAddress = 0 )
         {
             return Memory.allocFromNotUsedRam(size);
         }
@@ -124,9 +124,14 @@ class Memory {
             do Memory.poke(newBlockAddress, Memory.peek(smallestAddress));
         }
 
+        if(Memory.peek(smallestAddress) = 0)
+        {
+            let freeMemoryAddress = 0;
+        }
+
         do Memory.poke(smallestAddress+1, allocatedSize);
 
-        return smallestAddress;
+        return newBlockAddress;
     }
 
      /** De-allocates the given object (cast as an array) by making
