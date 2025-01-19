@@ -67,26 +67,6 @@ class Math {
 
     function int multiplyBitwise(int x, int y)
     {
- // result - is a sum of leftShifts x << ls, where ls -> log2N. 
-        // Example 1, y = 64, leftPart = y
-        // log2(leftPart) = 6. 
-        // so result = x << 64. 
-
-        // Example 2, y = 70, leftPart = y, handledPart = 0
-        // log2(leftPart) = 6
-        // result = x << 64
-        // handledPart = 64
-        // leftPart = y - handledPart
-        // log(handledPart) = 2
-        // result += x << 2
-        // handledPart = handledPart + 4
-        // leftPart = y - handledPart;
-        // log(leftPart) = 1
-        // result += x << 1
-
-        // if(leftPart == 1)
-        // result += x 
-
         var int result;
         var currentPowerIndexOfTwo;
         var currentPowerOfTwo;
@@ -121,11 +101,91 @@ class Math {
      *  When a Jack compiler detects the division operator '/'
      *  an an expression, it handles it by invoking this method.
      *  Thus, x/y and Math.divide(x,y) return the same value. */
-    function int divide(int x, int y) {
+    function int divide(int x, int y) 
+    {
+        var bool isNegative;
+        var int result;
+        var int xAbs;
+        var int yAbs;
+
+        let xAbs = Math.abs(x);
+        let yAbs = Math.abs(y);
+
+        if(xAbs < yAbs){
+            return 0;
+        }
+        
+
+        if(x = 0){
+            return 0;
+        }
+
+        if(y = 0){
+            do Sys.error(100);
+            return 0;
+        }
+
+        if(x < 0){
+            let isNegative = 1 - isNegative;
+        }
+
+        if(y < 0){
+            let isNegative = 1 - isNegative;
+        }
+
+        let result = Math.divideProcedure(xAbs, yAbs);
+        if(isNegative){
+            let result = -result;
+        }
+
+        return result;
+
+    }
+
+    function int divideProcedure(int x, int y)
+    {
+        var divideResult;
+
+        if(y > x){
+            return 0;
+        }
+
+        let divideResult = Math.divideProcedure(x, 2 * y);
+
+        if(x - (2 * divideResult * y) < y){
+            return 2 * divideResult;
+        }
+        
+        return (2 * divideResult) + 1;
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+        var int result;
+        var int tempResult;
+        var int pow;
+
+        if(x < 0)
+        {
+            do Sys.error(90);
+            return 0;
+        }
+
+        let result = 0;
+        let tempResult = 0;
+        let pow = (Math.n / 2) - 1;
+
+        while(~(pow < 0))
+        {
+            let tempResult = result + powersOfTwo[pow];
+            let tempResult = tempResult * tempResult;
+
+            if(~(tempResult > x)){
+                let result = result + powersOfTwo[pow];
+            }
+        }
+
+        return result;
     }
 
     /** Returns the greater value. */
@@ -188,10 +248,10 @@ class Math {
         var int index = 0;
         while(index < Math.n)
         {
-            if(Math.powersOfTwo[index] = x)
-            {
+            if(Math.powersOfTwo[index] = x){
                 return index;
             }
+
             let index = index + 1;
         }
 
