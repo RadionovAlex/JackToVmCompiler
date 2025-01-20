@@ -52,9 +52,10 @@ class Math {
     function int multiply(int x, int y) 
     {
         var Array myArr;
-        var boolean isNegative;
+        var int isNegative;
         var int result;
 
+        let isNegative = 0;
         let myArr = 15000;
         let operationArray[0] = 10;  
 
@@ -68,12 +69,12 @@ class Math {
 
         if(x < 0){
             let isNegative = 1 - isNegative;
-            let x = -x;
+            let x = Math.abs(x);
         }
 
         if(y < 0){
             let isNegative = 1 - isNegative;
-            let y = -y;
+            let y = Math.abs(y);
         }
 
         let myArr[0] = x;
@@ -81,7 +82,7 @@ class Math {
         
         let result = Math.multiplyBitwise(x, y);
 
-        if(isNegative){
+        if(isNegative = 1){
             let result = -result;
         }
 
@@ -147,6 +148,7 @@ class Math {
 
         let myArr = 14995;
 
+        let isNegative = 0;
         let xAbs = Math.abs(x);
         let yAbs = Math.abs(y);
         let operationArray[0] = 20;
@@ -177,7 +179,7 @@ class Math {
         let myArr[1] = yAbs;
 
         let result = Math.divideProcedure(xAbs, yAbs);
-        if(isNegative){
+        if(isNegative = 1){
             let result = -result;
         }
 
@@ -263,7 +265,7 @@ class Math {
     function int abs(int x) 
     {
         if(x < 0){
-            let x = x * -1;
+            let x = -x;
         }
         return x;
     }
