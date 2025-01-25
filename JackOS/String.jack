@@ -1,0 +1,213 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/String.jack
+/**
+ * Represents character strings. In addition for constructing and disposing
+ * strings, the class features methods for getting and setting individual
+ * characters of the string, for erasing the string's last character,
+ * for appending a character to the string's end, and more typical
+ * string-oriented operations.
+ */
+class String {
+    field Array allocatedArray;
+    field int actualLength;
+    field int arrayLength;
+
+    /** constructs a new empty string with a maximum length of maxLength
+     *  and initial length of 0. */
+    constructor String new(int maxLength) {
+        let arrayLength = maxLength;
+        let actualLength = 0;
+        let allocatedArray = Array.new(maxLength);
+        
+        return this;
+    }    
+
+    /** Disposes this string. */
+    method void dispose() {
+        do Memory.deAlloc(allocatedArray);
+        return;
+    }
+
+    /** Returns the current length of this string. */
+    method int length() {
+        return actualLength;
+    }
+
+    /** Returns the character at the j-th location of this string. */
+    method char charAt(int j) {
+        return allocatedArray[j];
+    }
+
+    /** Sets the character at the j-th location of this string to c. */
+    method void setCharAt(int j, char c) {
+        let allocatedArray[j] = c;
+        return;
+    }
+
+    /** Appends c to this string's end and returns this string. */
+    method String appendChar(char c) {
+        var String newString;
+        var int curIndex;
+        
+        if (actualLength = maxLength){
+            // create new Array and replace all previous content
+            let newString = String.new(actualLength + 1);
+            let curIndex = 0;
+            while(curIndex < actualLength + 1){
+                do newString.appendChar(curIndex, allocatedArray[curIndex]);
+            }
+            do this.dispose();
+            newString.appendChar(c);
+        }
+        else{
+            let newString = this;
+
+            let newString[actualLength] = c;
+            let actualLength = actualLength + 1;
+        }
+
+        return newString;
+    }
+
+    /** Erases the last character from this string. */
+    method void eraseLastChar() {
+        if(actualLength = 0){
+            return;
+        }
+        
+
+        let allocatedArray[actualLength-1] = 0;
+        let actualLength = actualLength - 1;
+
+        return;
+    }
+
+    /** Returns the integer value of this string, 
+     *  until a non-digit character is detected. */
+    method int intValue() 
+    {
+        var int curIndex;
+        var int numbersFound;
+        var boolean goFurther;
+
+        let curIndex = 0;
+        let numbersFound = 0;
+        let goFurther = curIndex < actualLength;
+        if(goFurther){
+            let goFurther = goFurther & isInteger(allocatedArray[curIndex]);
+        }
+
+        while(goFurther){
+            let numbersFound = numbersFound + 1;
+            let curIndex = curIndex + 1;
+
+            let goFurther = curIndex < actualLength;
+            if(goFurther){
+                let goFurther = goFurther & isInteger(allocatedArray[curIndex]);
+            }
+        }
+
+        if(numbersFound = 0){
+            return 0;
+        }
+
+        return this.extractIntFromFirst(numbersFound);
+    }
+
+    method int extractIntFromFirst(int numbersAmount){
+        var int result;
+        var int degree;
+        var int valueOfCharInArray;
+        var int currentIndex;
+        var int tenInDegree;
+        var int currentTenDegree;
+
+        if(numbersAmount = 0){
+            return 0;   
+        }
+
+        let degree = firstNumbersAmount - 1;
+        let currentIdex = 0;
+
+        while(degree > 0){
+            let valueOfCharInArray = allocatedArray[currentIndex] - 48; // 48 is 0, 57 is 9 in ASCII
+            let tenInDegree = 1;
+            let currentTenDegree = degree;
+            while(currentTenDegree > 0){
+                let tenInDegree = tenInDegree * 10;
+                let currentTenDegree = currentTenDegree - 1;
+            }
+            let valueOfCharInArray = valueOfCharInArray * currentTenDegree;
+            let result = result + valueOfCharInArray;
+            
+            let degree = degree - 1;
+
+            let currentIndex = currentIndex + 1;
+        }
+
+        return result;
+        
+    }
+
+    method boolean isInteger(char c){
+        if(c < 48){
+            return false;
+        }
+        
+        if(c > 57){
+            return false;
+        }
+    
+        return true;
+    }
+
+    /** Sets this string to hold a representation of the given value. */
+    method void setInt(int val) {
+        var int numberDigit;
+        var int currentDivider;
+        var int curIndex;
+
+        if(val = 0)
+        {
+            let actualLength = 1;
+            allocatedArray[0] = 48;
+            return;
+        }
+        
+        let numberDigit = 0;
+        let currentDivider = 1;
+        let curIndex = 0;
+
+        while(val / currentDivider > 0){
+            let currentDivider = currentDivider * 10;
+            numberDigit = numberDigit + 1;
+        }
+
+        let actualLength = currentDivider;
+
+        while(curIndex < numberDigit){
+            let allocatedArray[curIndex] = val / currentDivider;
+            let curIndex = curIndex + 1;
+            let currentDivider = currentDivider / 10;
+        }
+
+        return;
+    }
+
+    /** Returns the new line character. */
+    function char newLine() {
+        return 10;
+    }
+
+    /** Returns the backspace character. */
+    function char backSpace() {
+        return 8;
+    }
+
+    /** Returns the double quote (") character. */
+    function char doubleQuote() {
+        return 34;
+    }
+}
