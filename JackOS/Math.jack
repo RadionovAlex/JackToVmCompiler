@@ -10,7 +10,6 @@
 class Math {
     static int n;             // Number of bits used for representing a two's complement integer
     static Array powersOfTwo; // Stores 2^0, 2^1, 2^2,..., 2^(n-1)
-    static Array operationArray;
 
     function int GetN()
     {
@@ -22,19 +21,8 @@ class Math {
         var int tempIndex;
         let n = 16;
         let powersOfTwo = Array.new(n);
-        let powersOfTwo = 5000;
-        let operationArray = 14999;
 
         let tempIndex = 0;
-       // while(tempIndex < n)
-       // {
-         //   if(tempIndex = 0){
-           //     powersOfTwo[tempIndex] = 1;
-            // }
-            // else{
-               //  powersOfTwo[tempIndex] = Math.leftShift(powersOfTwo[tempIndex-1]);
-            // }
-        // }
         
         let powersOfTwo[0] = 1;
         let powersOfTwo[1] = 2;
@@ -62,15 +50,10 @@ class Math {
      *  Thus, in Jack, x * y and Math.multiply(x,y) return the same value. */
     function int multiply(int x, int y) 
     {
-        var Array myArr;
-        var Array negativeTestArr;
         var int isNegative;
         var int result;
 
         let isNegative = 0;
-        let negativeTestArr = 5200;
-        let myArr = 15000;
-        let operationArray[0] = 10;  
 
         if(x = 0){
             return 0;
@@ -89,11 +72,6 @@ class Math {
             let isNegative = 1 - isNegative;
             let y = Math.abs(y);
         }
-
-        let negativeTestArr[0] = isNegative;
-
-        let myArr[0] = x;
-        let myArr[1] = y;
         
         let result = Math.multiplyBitwise(x, y);
 
@@ -159,20 +137,15 @@ class Math {
         var int result;
         var int xAbs;
         var int yAbs;
-        var Array myArr;
-
-        let myArr = 14995;
 
         let isNegative = 0;
         let xAbs = Math.abs(x);
         let yAbs = Math.abs(y);
-        let operationArray[0] = 20;
 
         if(xAbs < yAbs){
             return 0;
         }
         
-
         if(x = 0){
             return 0;
         }
@@ -190,11 +163,8 @@ class Math {
             let isNegative = 1 - isNegative;
         }
 
-        let myArr[0] = xAbs;
-        let myArr[1] = yAbs;
-
         let result = Math.divideProcedure(xAbs, yAbs);
-        if(isNegative = 1){
+        if(isNegative > 0){
             let result = -result;
         }
 
@@ -206,11 +176,6 @@ class Math {
 
         var Array myArr;  
         var int divideResult;
-
-        let myArr = 14997;
-
-        let myArr[0] = x;
-        let myArr[1] = y;
 
         if(y > x){
             return 0;
@@ -230,11 +195,6 @@ class Math {
         var int result;
         var int tempResult;
         var int pow;
-        var Array tempResultArray;
-        var Array tempResultArrayBeforeMultiply;
-
-        let tempResultArray = 5100;
-        let tempResultArrayBeforeMultiply = 5150;
 
         if(x < 0)
         {
@@ -248,12 +208,7 @@ class Math {
         while(~(pow < 0))
         {
             let tempResult = result + powersOfTwo[pow];
-
-            let tempResultArrayBeforeMultiply[pow] = result;
-
             let tempResult = tempResult * tempResult;
-
-            let tempResultArray[pow] = tempResult;
 
             if(~(tempResult < 0)){
                 if(~(tempResult > x)){
