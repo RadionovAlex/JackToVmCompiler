@@ -24,6 +24,17 @@ class Math {
         let powersOfTwo = Array.new(n);
         let powersOfTwo = 5000;
         let operationArray = 14999;
+
+        let tempIndex = 0;
+       // while(tempIndex < n)
+       // {
+         //   if(tempIndex = 0){
+           //     powersOfTwo[tempIndex] = 1;
+            // }
+            // else{
+               //  powersOfTwo[tempIndex] = Math.leftShift(powersOfTwo[tempIndex-1]);
+            // }
+        // }
         
         let powersOfTwo[0] = 1;
         let powersOfTwo[1] = 2;
@@ -52,10 +63,12 @@ class Math {
     function int multiply(int x, int y) 
     {
         var Array myArr;
+        var Array negativeTestArr;
         var int isNegative;
         var int result;
 
         let isNegative = 0;
+        let negativeTestArr = 5200;
         let myArr = 15000;
         let operationArray[0] = 10;  
 
@@ -77,12 +90,14 @@ class Math {
             let y = Math.abs(y);
         }
 
+        let negativeTestArr[0] = isNegative;
+
         let myArr[0] = x;
         let myArr[1] = y;
         
         let result = Math.multiplyBitwise(x, y);
 
-        if(isNegative = 1){
+        if(isNegative > 0){
             let result = -result;
         }
 
@@ -129,7 +144,7 @@ class Math {
             let currentPowerOfTwo = powersOfTwo[currentPowerIndexOfTwo];
         }
 
-        let result = Math.leftShift(x, currentPowerIndexOfTwo) + Math.multiplyBitwise(x, y-currentPowerOfTwo);
+        let result = Math.leftShift(x, currentPowerIndexOfTwo) + Math.multiplyBitwise(x, y - currentPowerOfTwo);
 
         return result;
     }
@@ -215,6 +230,11 @@ class Math {
         var int result;
         var int tempResult;
         var int pow;
+        var Array tempResultArray;
+        var Array tempResultArrayBeforeMultiply;
+
+        let tempResultArray = 5100;
+        let tempResultArrayBeforeMultiply = 5150;
 
         if(x < 0)
         {
@@ -224,16 +244,23 @@ class Math {
 
         let result = 0;
         let tempResult = 0;
-        let pow = (Math.GetN() / 2) - 1;
-
+        let pow = (Math.GetN() / 2) -1;
         while(~(pow < 0))
         {
             let tempResult = result + powersOfTwo[pow];
+
+            let tempResultArrayBeforeMultiply[pow] = result;
+
             let tempResult = tempResult * tempResult;
 
-            if(~(tempResult > x)){
-                let result = result + powersOfTwo[pow];
+            let tempResultArray[pow] = tempResult;
+
+            if(~(tempResult < 0)){
+                if(~(tempResult > x)){
+                    let result = result + powersOfTwo[pow];
+                }
             }
+            
 
             let pow = pow - 1;
         }
