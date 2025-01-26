@@ -197,21 +197,18 @@ class String {
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
-        var Array debugArraySetInt;
         var int numberDigit;
         var int currentDivider;
         var int curIndex;
         var int leftValue;
         var int divideResult;
 
-        let debugArraySetInt = 5000;
         let leftValue = val;
 
         if(val = 0)
         {
             let actualLength = 1;
             let allocatedArray[0] = 48;
-            let debugArraySetInt[0] = 100;
             return;
         }
 
@@ -224,25 +221,20 @@ class String {
             let allocatedArray[curIndex] = 45;
             let curIndex = curIndex + 1;
             let val = Math.abs(val);
-            let debugArraySetInt[0] = -100;
         }
         
         while(((val / currentDivider) > 0) & (numberDigit < 4)){
             let numberDigit = numberDigit + 1;
             let currentDivider = currentDivider * 10;
-            let debugArraySetInt[5+numberDigit] = 100;
         }
 
         let actualLength = currentDivider;
 
         while(~(curIndex > numberDigit)){
-            let debugArraySetInt[30 + curIndex + 0] = leftValue;
-            let debugArraySetInt[40 + curIndex + 0] = currentDivider;
             let divideResult = (leftValue / currentDivider);
             let allocatedArray[curIndex] = divideResult + 48;
             let val = divideResult * currentDivider;
             let leftValue = leftValue - val;
-            let debugArraySetInt[20 + curIndex] = allocatedArray[curIndex];
             let curIndex = curIndex + 1;
             let currentDivider = currentDivider / 10;
             
