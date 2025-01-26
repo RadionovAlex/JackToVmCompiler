@@ -51,15 +51,15 @@ class String {
         var String newString;
         var int curIndex;
         
-        if (actualLength = maxLength){
+        if (actualLength = arrayLength){
             // create new Array and replace all previous content
             let newString = String.new(actualLength + 1);
             let curIndex = 0;
             while(curIndex < actualLength + 1){
-                do newString.appendChar(curIndex, allocatedArray[curIndex]);
+                do newString.appendChar(allocatedArray[curIndex]);
             }
-            do this.dispose();
-            newString.appendChar(c);
+            do dispose();
+            do newString.appendChar(c);
         }
         else{
             let newString = this;
@@ -113,7 +113,7 @@ class String {
             return 0;
         }
 
-        return this.extractIntFromFirst(numbersFound);
+        return extractIntFromFirst(numbersFound);
     }
 
     method int extractIntFromFirst(int numbersAmount){
@@ -128,8 +128,8 @@ class String {
             return 0;   
         }
 
-        let degree = firstNumbersAmount - 1;
-        let currentIdex = 0;
+        let degree = numbersAmount - 1;
+        let currentIndex = 0;
 
         while(degree > 0){
             let valueOfCharInArray = allocatedArray[currentIndex] - 48; // 48 is 0, 57 is 9 in ASCII
@@ -172,7 +172,7 @@ class String {
         if(val = 0)
         {
             let actualLength = 1;
-            allocatedArray[0] = 48;
+            let allocatedArray[0] = 48;
             return;
         }
         
@@ -182,7 +182,7 @@ class String {
 
         while(val / currentDivider > 0){
             let currentDivider = currentDivider * 10;
-            numberDigit = numberDigit + 1;
+            let numberDigit = numberDigit + 1;
         }
 
         let actualLength = currentDivider;
