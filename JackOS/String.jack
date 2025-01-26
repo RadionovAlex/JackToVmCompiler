@@ -188,7 +188,7 @@ class String {
         let actualLength = currentDivider;
 
         while(curIndex < numberDigit){
-            let allocatedArray[curIndex] = val / currentDivider;
+            let allocatedArray[curIndex] = (val / currentDivider) + 48;
             let curIndex = curIndex + 1;
             let currentDivider = currentDivider / 10;
         }
