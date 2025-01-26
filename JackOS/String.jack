@@ -9,7 +9,7 @@
  * for appending a character to the string's end, and more typical
  * string-oriented operations.
  */
-class String {
+class String { 
     field Array allocatedArray;
     field int actualLength;
     field int arrayLength;
@@ -17,15 +17,24 @@ class String {
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+
+        let allocatedArray = null;
         let arrayLength = maxLength;
         let actualLength = 0;
-        let allocatedArray = Array.new(maxLength);
+
+        if(maxLength > 0){
+            let allocatedArray = Array.new(maxLength);
+        }
         
         return this;
     }    
 
     /** Disposes this string. */
     method void dispose() {
+        if(allocatedArray = null){
+            return;
+        }
+        
         do Memory.deAlloc(allocatedArray);
         return;
     }
@@ -48,27 +57,34 @@ class String {
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
-        var String newString;
+        var Array newArray;
+        var int newLength;
         var int curIndex;
         
         if (actualLength = arrayLength){
             // create new Array and replace all previous content
-            let newString = String.new(actualLength + 1);
+            if(arrayLength = 0){
+                let newLength = 8;
+            }
+            else{
+                let newLength = arrayLength * 2;
+            }
+
+            let newArray = Array.new(newLength);
             let curIndex = 0;
             while(curIndex < actualLength + 1){
-                do newString.appendChar(allocatedArray[curIndex]);
+                let newArray[curIndex] = allocatedArray[curIndex];
+                let curIndex = curIndex + 1;
             }
-            do dispose();
-            do newString.appendChar(c);
-        }
-        else{
-            let newString = this;
-
-            let newString[actualLength] = c;
-            let actualLength = actualLength + 1;
+            do allocatedArray.dispose();
+            let allocatedArray = newArray;
+            let arrayLength = newLength;
         }
 
-        return newString;
+        let allocatedArray[actualLength] = c;
+        let actualLength = actualLength + 1;
+
+        return this;
     }
 
     /** Erases the last character from this string. */
@@ -76,7 +92,6 @@ class String {
         if(actualLength = 0){
             return;
         }
-        
 
         let allocatedArray[actualLength-1] = 0;
         let actualLength = actualLength - 1;
@@ -92,20 +107,21 @@ class String {
         var int curIndex;
         var int numbersFound;
         var boolean goFurther;
-        var boolean isFirstSign;
+        var boolean isNegative;
 
-        let isFirstSign = false;
+        let isNegative = false;
         let curIndex = 0;
         let numbersFound = 0;
         let goFurther = curIndex < actualLength;
 
         if(goFurther){
             if(allocatedArray[curIndex] = 45){
-                let isFirstSign = true;
+                let isNegative = true;
                 let curIndex = curIndex + 1;
                 let goFurther = curIndex < actualLength;
             }
         }
+
         if(goFurther){
             let goFurther = goFurther & isInteger(allocatedArray[curIndex]);
         }
@@ -125,7 +141,7 @@ class String {
         }
 
         let result = extractIntFromFirst(numbersFound);
-        if(isFirstSign){
+        if(isNegative){
             let result = -result;
         }
 
@@ -181,14 +197,21 @@ class String {
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        var Array debugArraySetInt;
         var int numberDigit;
         var int currentDivider;
         var int curIndex;
+        var int leftValue;
+        var int divideResult;
+
+        let debugArraySetInt = 5000;
+        let leftValue = val;
 
         if(val = 0)
         {
             let actualLength = 1;
             let allocatedArray[0] = 48;
+            let debugArraySetInt[0] = 100;
             return;
         }
 
@@ -200,20 +223,29 @@ class String {
         {
             let allocatedArray[curIndex] = 45;
             let curIndex = curIndex + 1;
-            let val = Math.abs(val)'
+            let val = Math.abs(val);
+            let debugArraySetInt[0] = -100;
         }
         
-        while(val / currentDivider > 0){
-            let currentDivider = currentDivider * 10;
+        while(((val / currentDivider) > 0) & (numberDigit < 4)){
             let numberDigit = numberDigit + 1;
+            let currentDivider = currentDivider * 10;
+            let debugArraySetInt[5+numberDigit] = 100;
         }
 
         let actualLength = currentDivider;
 
-        while(curIndex < numberDigit){
-            let allocatedArray[curIndex] = (val / currentDivider) + 48;
+        while(~(curIndex > numberDigit)){
+            let debugArraySetInt[30 + curIndex + 0] = leftValue;
+            let debugArraySetInt[40 + curIndex + 0] = currentDivider;
+            let divideResult = (leftValue / currentDivider);
+            let allocatedArray[curIndex] = divideResult + 48;
+            let val = divideResult * currentDivider;
+            let leftValue = leftValue - val;
+            let debugArraySetInt[20 + curIndex] = allocatedArray[curIndex];
             let curIndex = curIndex + 1;
             let currentDivider = currentDivider / 10;
+            
         }
 
         return;
