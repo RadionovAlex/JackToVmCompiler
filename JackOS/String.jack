@@ -167,7 +167,11 @@ class String {
         let degree = numbersAmount - 1;
         let currentIndex = 0;
 
-        while(degree > 0){
+        if(allocatedArray[0] = 45){
+            let currentIndex = 1;
+        }
+
+        while(~(degree < 0)){
             let valueOfCharInArray = allocatedArray[currentIndex] - 48; // 48 is 0, 57 is 9 in ASCII
             let tenInDegree = 1;
             let currentTenDegree = degree;
@@ -175,7 +179,8 @@ class String {
                 let tenInDegree = tenInDegree * 10;
                 let currentTenDegree = currentTenDegree - 1;
             }
-            let valueOfCharInArray = valueOfCharInArray * currentTenDegree;
+            let valueOfCharInArray = valueOfCharInArray * tenInDegree;
+
             let result = result + valueOfCharInArray;
             
             let degree = degree - 1;
