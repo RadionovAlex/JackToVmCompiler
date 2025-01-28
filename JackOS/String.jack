@@ -21,7 +21,7 @@ class String {
 
         let allocatedArray = null;
         let arrayLength = maxLength;
-        let actualLength = -1;
+        let actualLength = 0;
 
         if(maxLength > 0){
             let allocatedArray = Array.new(maxLength);
@@ -42,14 +42,14 @@ class String {
 
     /** Returns the current length of this string. */
     method int length() {
-        do Output.printString("ask length");
+        // do Output.printString("ask length");
         return actualLength;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
-        do Output.printString("CharAt ");
-        do Output.printInt(j);
+        // do Output.printString("CharAt ");
+        // do Output.printInt(j);
         return allocatedArray[j];
     }
 
@@ -206,8 +206,9 @@ class String {
         var int curIndex;
         var int leftValue;
         var int divideResult;
+        var int indexAdd;
 
-        
+        let indexAdd = 0;
         if(val = 0)
         {
             let actualLength = 1;
@@ -222,7 +223,7 @@ class String {
         if(val < 0)
         {
             let allocatedArray[curIndex] = 45;
-            let curIndex = curIndex + 1;
+            let indexAdd = 1;
             let val = Math.abs(val);
         }
 
@@ -238,7 +239,7 @@ class String {
 
         while(~(curIndex > numberDigit)){
             let divideResult = (leftValue / currentDivider);
-            let allocatedArray[curIndex] = divideResult + 48;
+            let allocatedArray[curIndex + indexAdd] = divideResult + 48;
             let val = divideResult * currentDivider;
             let leftValue = leftValue - val;
             let curIndex = curIndex + 1;
