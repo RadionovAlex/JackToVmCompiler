@@ -201,9 +201,6 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        let cursorCoordinates[0] = i;
-        let cursorCoordinates[1] = j;
-
         if(j > screenWidth - characterWidth){
             let j = 0;
             let i = i + 1;
@@ -212,6 +209,18 @@ class Output {
         if(i > (outputRowsMax -1)){
             let i = 0;
         }
+
+        if(j < 0){
+            let i = i -1;
+            let j = 0;
+        }
+
+        if(i < 0){
+            let i = 0;
+        }
+
+        let cursorCoordinates[0] = i;
+        let cursorCoordinates[1] = j;
 
         do Screen.setColor(false);
         do Screen.drawPixel(i,j);
@@ -288,13 +297,25 @@ class Output {
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        var String stringPresentation;
+
+        let stringPresentation = String.new(16);
+        do stringPresentation.setInt(i);
+
+        do Output.printString(stringPresentation);
+
+        return;
     }
 
-    /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        do Output.moveCursor(cursorCoordinates[0] + 1, 0);
+
+        return;
     }
 
-    /** Moves the cursor one column back. */
     function void backSpace() {
+        do Output.moveCursor(cursorCoordinates[0], cursorCoordinates[1] - characterWidth);
+
+        return;
     }
 }
