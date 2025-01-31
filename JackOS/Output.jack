@@ -99,7 +99,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,12,26,51,51,63,51,51,51,51,0,0);          // A ** TO BE FILLED **
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -285,7 +285,7 @@ class Output {
             }
 
             do Screen.setColor(currentColor);
-            do Screen.drawPixel((cursorCoordinates[0] * characterWidth) + curIndex, (cursorCoordinates[1] * characterHeight) + rowNumber);
+            do Screen.drawPixel((cursorCoordinates[0] * characterWidth) + characterWidth - 1 - curIndex, (cursorCoordinates[1] * characterHeight) + rowNumber);
 
             let curIndex = curIndex + 1;
             let powerOfTwo = powerOfTwo  / 2;
@@ -326,13 +326,13 @@ class Output {
     }
 
     function void println() {
-        do Output.moveCursor(cursorCoordinates[0] + 1, 0);
+        do Output.moveCursor(cursorCoordinates[1] + 1, 0);
 
         return;
     }
 
     function void backSpace() {
-        do Output.moveCursor(cursorCoordinates[0], cursorCoordinates[1] - 1);
+        do Output.moveCursor(cursorCoordinates[1], cursorCoordinates[0] - 1);
 
         return;
     }
