@@ -19,6 +19,8 @@ class Output {
     static Array cursorCoordinates;
     static Array charMaps; 
 
+    static Array debugArray;
+
     static int characterWidth;
     static int characterHeight;
 
@@ -30,7 +32,8 @@ class Output {
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
-        do initMap();
+        let debugArray = 10000;
+        do Output.initMap();
 
         let cursorCoordinates = Array.new(2);
         let cursorCoordinates[0] = 0;
@@ -201,9 +204,11 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        if(j > screenWidth - characterWidth){
+        if(j > (outputCharactersMax - 1)){
             let j = 0;
-            let i = i + 1;
+            if(i = cursorCoordinates[1]){
+                let i = i + 1;
+            }
         }
 
         if(i > (outputRowsMax -1)){
@@ -219,11 +224,11 @@ class Output {
             let i = 0;
         }
 
-        let cursorCoordinates[0] = i;
-        let cursorCoordinates[1] = j;
+        let cursorCoordinates[0] = j;
+        let cursorCoordinates[1] = i;
 
         do Screen.setColor(false);
-        do Screen.drawPixel(i,j);
+        do Screen.drawPixel(j * characterWidth, i * characterHeight);
 
         return;
     }
@@ -238,11 +243,11 @@ class Output {
         let curIndex = 0;
 
         while(curIndex < characterHeight){
+            do Output.printIntAsRow(map[curIndex], curIndex);
             let curIndex = curIndex + 1;
-            Output.printIntAsRow(map[curIndex], curIndex);
         }
 
-        do Output.moveCursor(cursorCoordinates[0], cursorCoordinates[1] + characterWidth);
+        do Output.moveCursor(cursorCoordinates[1], cursorCoordinates[0] + 1);
 
         return;
         
@@ -250,27 +255,40 @@ class Output {
     }
 
     function void printIntAsRow(int value, int rowNumber){
-        var int rowToOperate;
         var int columnToOperate;
         var int curIndex;
-        var int currentPower;
+        var int powerOfTwo;
         var boolean currentColor;
+        
+        let curIndex = 0;
+        while(curIndex < characterWidth)
+        {
+            if(curIndex = 0){
+                let powerOfTwo = 1;
+            }
+            else{
+                let powerOfTwo = powerOfTwo * 2;
+            }
 
-        let rowToOperate = (cursorCoordinates[0] * characterHeight) + rowNumber;
+            let curIndex = curIndex + 1;
+        }
+
         let curIndex = 0;
 
+
         while(curIndex < characterWidth){
-            let currentPower = characterWidth -1 - curIndex;
             let currentColor = false;
-            if (~(value < Math.powersOfTwo[currentPower])) {
+
+            if (~(value < powerOfTwo)) {
                 let currentColor = true;
-                let value = value - Math.powersOfTwo[currentPower];
+                let value = value - powerOfTwo;
             }
 
             do Screen.setColor(currentColor);
-            do Screen.drawPixel(rowToOperate, cursorCoordinates[1] + curIndex);
+            do Screen.drawPixel((cursorCoordinates[0] * characterWidth) + curIndex, (cursorCoordinates[1] * characterHeight) + rowNumber);
 
             let curIndex = curIndex + 1;
+            let powerOfTwo = powerOfTwo  / 2;
         }
 
         return;
@@ -279,8 +297,8 @@ class Output {
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
-        var curIndex;
-        var curChar;
+        var int curIndex;
+        var int curChar;
 
         let curIndex = 0;
 
@@ -314,7 +332,7 @@ class Output {
     }
 
     function void backSpace() {
-        do Output.moveCursor(cursorCoordinates[0], cursorCoordinates[1] - characterWidth);
+        do Output.moveCursor(cursorCoordinates[0], cursorCoordinates[1] - 1);
 
         return;
     }
