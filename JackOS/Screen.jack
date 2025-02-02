@@ -22,14 +22,17 @@ class Screen {
     function void init() {
         let bitsInSystem = 16;
         let mapStart = 16384;
+        let screenMap = mapStart;
         let width = 512;
         let height = 256;
         let mapSize = width * height / bitsInSystem;
+
+        return;
     }
 
     /** Erases the entire screen. */
     function void clearScreen() {
-        int xIndex, yIndex;
+        var int xIndex, yIndex;
 
         let xIndex = 0;
         let yIndex = 0;
@@ -41,6 +44,8 @@ class Screen {
             }
             let yIndex = yIndex + 1;
         }
+
+        return;
     }
 
     /** Sets the current color, to be used for all subsequent drawXXX commands.
@@ -48,6 +53,20 @@ class Screen {
     function void setColor(boolean b) {
         let color = b;
         return;
+    }
+
+    function int GetBitValueTest(int x, int y){
+        var int registerAddress;
+        var int bitIndexInRegister;
+        var boolean currentBitValue;
+
+        let registerAddress = Screen.getRegisterAddress(x, y);
+        let bitIndexInRegister = Screen.getBitIndexInRegister(x);
+        
+        let currentBitValue = Screen.getBitValueInRegister(registerAddress, bitIndexInRegister);
+
+        return currentBitValue;
+
     }
 
     /** Draws the (x,y) pixel, using the current color. */
@@ -59,10 +78,10 @@ class Screen {
         var int differenceToApply;
         var int powerForDifference;
 
-        let registerAddress = getRegisterAddress(x, y);
-        let bitIndexInRegister = getBitIndexInRegister(x);
+        let registerAddress = Screen.getRegisterAddress(x, y);
+        let bitIndexInRegister = Screen.getBitIndexInRegister(x);
         
-        let currentBitValue = getBitValueInRegister(registerAddress, bitIndexInRegister);
+        let currentBitValue = Screen.getBitValueInRegister(registerAddress, bitIndexInRegister);
         if(currentBitValue = color){
             return;
         }
@@ -100,7 +119,7 @@ class Screen {
         // registerAddressInMap = (width/bitsInSystem * y) + x/bitsInSystem;
         let tempResult = width / bitsInSystem;
         let tempResult = tempResult * y;
-        let tempResult = tempResult + (x / bitsInSystem);
+        let tempResult = (x / bitsInSystem) + tempResult;
 
         return tempResult;
     }
@@ -125,7 +144,12 @@ class Screen {
                 let powerValue = 1;
             }
             else{
-                let powerValue = powerValue * 2;
+                if(curPower = 15){
+                    let powerValue = 16384;
+                }
+                else{
+                    let powerValue = powerValue * 2;
+                }
             }
 
             let curPower = curPower + 1; 
@@ -138,40 +162,59 @@ class Screen {
         var int registerValue;
         var boolean isValuePositive;
         var int maxPower;
+        var Array bitDebugArray;
         
         var int powerValue;
         var int defineIndex;
 
-        let maxPower = bitsInSystem - 1; //first bit means sign.
+        let bitDebugArray = 14000;
         let registerValue = screenMap[registerAddress];
         let isValuePositive = ~(registerValue < 0);
+        let bitDebugArray[30] = registerValue;
+        let bitDebugArray[31] = registerAddress;
+
+        
+
+        let maxPower = bitsInSystem - 1; //first bit means sign.
+        let powerValue = Screen.get2InPowOfPower(maxPower);
+        let defineIndex = 1;
+
+        let bitDebugArray[20] = defineIndex;
+        let bitDebugArray[21] = bitsInSystem;
 
         if(bitIndex = 0){
             if(isValuePositive){
+                let bitDebugArray[22] = 183;
                 return false;
             }
             else{
+                let bitDebugArray[22] = 187;
                 return true;
             }
         }
 
-        let powerValue = Screen.get2InPowOfPower(maxPower);
-        
-        let defineIndex = 1;
-        while(~(defineIndex > maxPower)){
+        while(defineIndex < bitsInSystem){
+            let bitDebugArray[defineIndex] = powerValue;
             if(defineIndex = bitIndex){
                 if(isValuePositive){
                     if(~(registerValue < powerValue)){
+                        let bitDebugArray[22] = 197;
+                        let bitDebugArray[24] = registerValue;
+                        let bitDebugArray[25] = powerValue;
                         return true;
                     }
                 }
                 else{
-                     if(~(registerValue > powerValue)){
+                     if(~(registerValue > -powerValue)){
+                        let bitDebugArray[22] = 203;
                         return true;
                     }
                 }
 
-                return true;
+                let bitDebugArray[22] = 208;
+                let bitDebugArray[24] = registerValue;
+                let bitDebugArray[25] = powerValue;
+                return false;
             }
             
             if(isValuePositive){
@@ -180,25 +223,39 @@ class Screen {
                 }
             }
             else{
-                if(~(registerValue > powerValue)){
+                if(~(registerValue > -powerValue)){
                     let registerValue = registerValue + powerValue;
                 }
             }
             let powerValue = powerValue / 2;
             let defineIndex = defineIndex + 1;
+            
+            if(powerValue = 0){
+                let bitDebugArray[defineIndex] = 999;
+            }
+
+            let bitDebugArray[20] = defineIndex;
+            let bitDebugArray[21] = bitsInSystem;
         }
+
+       
+        do Sys.error(500);
+        return false;
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
+        return;
     }
 
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      *  and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        return;
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+        return;
     }
 }
