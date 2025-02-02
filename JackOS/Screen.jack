@@ -54,10 +54,45 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int registerAddress;
         var int bitIndexInRegister;
+        var boolean currentBitValue;
+        var int currentRegisterValue;
+        var int differenceToApply;
+        var int powerForDifference;
 
         let registerAddress = getRegisterAddress(x, y);
         let bitIndexInRegister = getBitIndexInRegister(x);
         
+        let currentBitValue = getBitValueInRegister(registerAddress, bitIndexInRegister);
+        if(currentBitValue = color){
+            return;
+        }
+
+        let currentRegisterValue = screenMap[registerAddress];
+        if(bitIndexInRegister = 0){
+            if(currentRegisterValue > 0){
+                let currentRegisterValue = currentRegisterValue - 32767;
+            }
+            else{
+                let currentRegisterValue = currentRegisterValue + 32767;
+            }
+
+            let screenMap[registerAddress] = currentRegisterValue;
+
+            return;
+        }
+
+        let powerForDifference = bitsInSystem - 1 - bitIndexInRegister;             
+        let differenceToApply = Screen.get2InPowOfPower(powerForDifference);
+
+        if(color){
+            let currentRegisterValue = currentRegisterValue + differenceToApply;
+        }                 
+        else{
+            let currentRegisterValue = currentRegisterValue - differenceToApply;
+        }
+
+        let screenMap[registerAddress] = currentRegisterValue;
+        return;
     }
 
     function int getRegisterAddress(int x, int y){
@@ -77,10 +112,81 @@ class Screen {
         return pixelIndexInRow - (divisionResult * bitsInSystem);
     }    
 
-    function int getBitValueInRegister(int registerAddress, int bitIndex){
-        var int registerValue;
+    function int get2InPowOfPower(int pow){
+        var int curPower;
+        var int powerValue;
 
-        let registerValue = 
+        let curPower = 0;
+        let powerValue = 0;
+
+        // calculate power of 2^pow
+        while(~(curPower > pow)){ 
+            if(curPower = 0){
+                let powerValue = 1;
+            }
+            else{
+                let powerValue = powerValue * 2;
+            }
+
+            let curPower = curPower + 1; 
+        }
+
+        return powerValue;
+    }
+
+    function boolean getBitValueInRegister(int registerAddress, int bitIndex){
+        var int registerValue;
+        var boolean isValuePositive;
+        var int maxPower;
+        
+        var int powerValue;
+        var int defineIndex;
+
+        let maxPower = bitsInSystem - 1; //first bit means sign.
+        let registerValue = screenMap[registerAddress];
+        let isValuePositive = ~(registerValue < 0);
+
+        if(bitIndex = 0){
+            if(isValuePositive){
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+
+        let powerValue = Screen.get2InPowOfPower(maxPower);
+        
+        let defineIndex = 1;
+        while(~(defineIndex > maxPower)){
+            if(defineIndex = bitIndex){
+                if(isValuePositive){
+                    if(~(registerValue < powerValue)){
+                        return true;
+                    }
+                }
+                else{
+                     if(~(registerValue > powerValue)){
+                        return true;
+                    }
+                }
+
+                return true;
+            }
+            
+            if(isValuePositive){
+                if(~(registerValue < powerValue)){
+                    let registerValue = registerValue - powerValue;
+                }
+            }
+            else{
+                if(~(registerValue > powerValue)){
+                    let registerValue = registerValue + powerValue;
+                }
+            }
+            let powerValue = powerValue / 2;
+            let defineIndex = defineIndex + 1;
+        }
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
