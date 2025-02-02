@@ -88,7 +88,7 @@ class Screen {
 
         let currentRegisterValue = screenMap[registerAddress];
         if(bitIndexInRegister = 0){
-            if(currentRegisterValue > 0){
+            if(~(currentRegisterValue < 0)){
                 let currentRegisterValue = currentRegisterValue - 32767;
             }
             else{
@@ -100,7 +100,8 @@ class Screen {
             return;
         }
 
-        let powerForDifference = bitsInSystem - 1 - bitIndexInRegister;             
+        let powerForDifference = bitsInSystem - 1 - bitIndexInRegister;       
+            
         let differenceToApply = Screen.get2InPowOfPower(powerForDifference);
 
         if(color){
@@ -170,25 +171,16 @@ class Screen {
         let bitDebugArray = 14000;
         let registerValue = screenMap[registerAddress];
         let isValuePositive = ~(registerValue < 0);
-        let bitDebugArray[30] = registerValue;
-        let bitDebugArray[31] = registerAddress;
-
-        
-
+   
         let maxPower = bitsInSystem - 1; //first bit means sign.
         let powerValue = Screen.get2InPowOfPower(maxPower);
-        let defineIndex = 1;
-
-        let bitDebugArray[20] = defineIndex;
-        let bitDebugArray[21] = bitsInSystem;
+        let defineIndex = 1;        
 
         if(bitIndex = 0){
             if(isValuePositive){
-                let bitDebugArray[22] = 183;
                 return false;
             }
             else{
-                let bitDebugArray[22] = 187;
                 return true;
             }
         }
@@ -198,24 +190,24 @@ class Screen {
             if(defineIndex = bitIndex){
                 if(isValuePositive){
                     if(~(registerValue < powerValue)){
-                        let bitDebugArray[22] = 197;
-                        let bitDebugArray[24] = registerValue;
-                        let bitDebugArray[25] = powerValue;
+                        return true;
+                    }
+                    else{
                         return true;
                     }
                 }
                 else{
                      if(~(registerValue > -powerValue)){
-                        let bitDebugArray[22] = 203;
-                        return true;
+                        if((registerValue = -powerValue) & registerValue = -1){
+                            return true;
+                        }
+                        return false;
+                     }
+                        else {
+                            return false;
+                        }
                     }
                 }
-
-                let bitDebugArray[22] = 208;
-                let bitDebugArray[24] = registerValue;
-                let bitDebugArray[25] = powerValue;
-                return false;
-            }
             
             if(isValuePositive){
                 if(~(registerValue < powerValue)){
@@ -229,17 +221,8 @@ class Screen {
             }
             let powerValue = powerValue / 2;
             let defineIndex = defineIndex + 1;
-            
-            if(powerValue = 0){
-                let bitDebugArray[defineIndex] = 999;
-            }
-
-            let bitDebugArray[20] = defineIndex;
-            let bitDebugArray[21] = bitsInSystem;
         }
 
-       
-        do Sys.error(500);
         return false;
     }
 
