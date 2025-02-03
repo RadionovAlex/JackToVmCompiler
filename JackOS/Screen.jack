@@ -17,6 +17,7 @@ class Screen {
     static boolean color;
 
     static Array screenMap;
+    static Array masks;
 
     /** Initializes the Screen. */
     function void init() {
@@ -26,8 +27,30 @@ class Screen {
         let width = 512;
         let height = 256;
         let mapSize = width * height / bitsInSystem;
+        do Screen.initMasks();
 
         return;
+    }
+
+    function void initMasks(){
+        var int index;
+        var int curIndex;
+        var Array debugArray;
+
+        let index = 0;
+        let masks = Array.new(16);
+        let debugArray = 15000;
+        let debugArray[0] = masks;
+
+        while(index < (bitsInSystem - 1)){
+            let curIndex = index;
+            let masks[curIndex] = Screen.get2InPowOfPower(curIndex);
+            let index = index + 1;
+        }
+
+        let masks[index] = -32767 - 1;
+
+        return;        
     }
 
     /** Erases the entire screen. */
@@ -76,18 +99,33 @@ class Screen {
         var boolean currentBitValue;
         var int currentRegisterValue;
         var int differenceToApply;
-        var int powerForDifference;
+        var int mask;
 
         let registerAddress = Screen.getRegisterAddress(x, y);
         let bitIndexInRegister = Screen.getBitIndexInRegister(x);
         
         let currentBitValue = Screen.getBitValueInRegister(registerAddress, bitIndexInRegister);
         if(currentBitValue = color){
+            do Sys.error(5);
             return;
         }
 
         let currentRegisterValue = screenMap[registerAddress];
-        if(bitIndexInRegister = 0){
+
+        let mask = masks[bitIndexInRegister];
+        if(color){
+            let currentRegisterValue = currentRegisterValue | mask;
+        }
+        else{
+            let mask = ~mask;
+            let currentRegisterValue = currentRegisterValue & mask;
+        }
+
+        let screenMap[registerAddress] = currentRegisterValue;
+
+        return;
+        
+        if(bitIndexInRegister = (bitsInSystem - 1)){
             if(~(currentRegisterValue < 0)){
                 let currentRegisterValue = currentRegisterValue - 32767;
             }
@@ -99,10 +137,8 @@ class Screen {
 
             return;
         }
-
-        let powerForDifference = bitsInSystem - 1 - bitIndexInRegister;       
             
-        let differenceToApply = Screen.get2InPowOfPower(powerForDifference);
+        let differenceToApply = Screen.get2InPowOfPower(bitIndexInRegister);
 
         if(color){
             let currentRegisterValue = currentRegisterValue + differenceToApply;
@@ -135,7 +171,9 @@ class Screen {
     function int get2InPowOfPower(int pow){
         var int curPower;
         var int powerValue;
-
+        var int maxPower;
+        
+        let maxPower = bitsInSystem - 1; //first bit means sign.
         let curPower = 0;
         let powerValue = 0;
 
@@ -145,7 +183,7 @@ class Screen {
                 let powerValue = 1;
             }
             else{
-                if(curPower = 15){
+                if(curPower = maxPower){
                     let powerValue = 16384;
                 }
                 else{
@@ -163,6 +201,7 @@ class Screen {
         var int registerValue;
         var boolean isValuePositive;
         var int maxPower;
+        var int mergedValue;
         var Array bitDebugArray;
         
         var int powerValue;
@@ -171,12 +210,17 @@ class Screen {
         let bitDebugArray = 14000;
         let registerValue = screenMap[registerAddress];
         let isValuePositive = ~(registerValue < 0);
-   
+
+        
+        let mergedValue = masks[bitIndex] & registerValue;
+
+        return ~(mergedValue = 0);
+
         let maxPower = bitsInSystem - 1; //first bit means sign.
         let powerValue = Screen.get2InPowOfPower(maxPower);
         let defineIndex = 1;        
 
-        if(bitIndex = 0){
+        if(bitIndex = maxPower){
             if(isValuePositive){
                 return false;
             }
@@ -187,7 +231,7 @@ class Screen {
 
         while(defineIndex < bitsInSystem){
             let bitDebugArray[defineIndex] = powerValue;
-            if(defineIndex = bitIndex){
+            if(defineIndex = maxPower - bitIndex){ 
                 if(isValuePositive){
                     if(~(registerValue < powerValue)){
                         return true;
@@ -198,10 +242,7 @@ class Screen {
                 }
                 else{
                      if(~(registerValue > -powerValue)){
-                        if((registerValue = -powerValue) & registerValue = -1){
-                            return true;
-                        }
-                        return false;
+                        return true;
                      }
                         else {
                             return false;
@@ -234,6 +275,60 @@ class Screen {
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      *  and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int fromX;
+        var int fromY;
+        var int toX;
+        var int toY;
+
+        var int curX;
+        var int curY;
+
+        if(x1 < 0 | y1 < 0 | x2 < 0 | y2 < 0){
+            do Sys.error(40);
+            return;
+        }
+
+        if(~(x1 < width) | ~(x2 < width))
+        {
+            do Sys.error(41);
+            return;
+        }
+
+        if(~(y1 < height) | ~(y2 < height)){
+            do Sys.error(42);
+            return;
+        }
+
+        if(x1 < x2){
+            let fromX = x1;
+            let toX = x2;
+        }
+        else{
+            let fromX = x2;
+            let toX = x1;
+        }
+
+        if(y1 < y2){
+            let fromY = y1;
+            let toY = y2;
+        }
+        else{
+            let fromY = y2;
+            let toY = y1;
+        }
+        
+        let curX = fromX;
+        let curY = fromY;
+        
+        while(~(curY > toY)){
+            while(~(curX > toX)){
+                do Screen.drawPixel(curX, curY);
+                let curX = curX + 1;
+            }
+            let curX = fromX;
+            let curY = curY + 1;
+        }
+
         return;
     }
 

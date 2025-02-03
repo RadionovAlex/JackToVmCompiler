@@ -250,8 +250,6 @@ class Output {
         do Output.moveCursor(cursorCoordinates[1], cursorCoordinates[0] + 1);
 
         return;
-        
-        // foreach(var row in map) -> printIntAsRow();
     }
 
     function void printIntAsRow(int value, int rowNumber){
