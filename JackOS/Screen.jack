@@ -124,31 +124,6 @@ class Screen {
         let screenMap[registerAddress] = currentRegisterValue;
 
         return;
-        
-        if(bitIndexInRegister = (bitsInSystem - 1)){
-            if(~(currentRegisterValue < 0)){
-                let currentRegisterValue = currentRegisterValue - 32767;
-            }
-            else{
-                let currentRegisterValue = currentRegisterValue + 32767;
-            }
-
-            let screenMap[registerAddress] = currentRegisterValue;
-
-            return;
-        }
-            
-        let differenceToApply = Screen.get2InPowOfPower(bitIndexInRegister);
-
-        if(color){
-            let currentRegisterValue = currentRegisterValue + differenceToApply;
-        }                 
-        else{
-            let currentRegisterValue = currentRegisterValue - differenceToApply;
-        }
-
-        let screenMap[registerAddress] = currentRegisterValue;
-        return;
     }
 
     function int getRegisterAddress(int x, int y){
@@ -215,56 +190,6 @@ class Screen {
         let mergedValue = masks[bitIndex] & registerValue;
 
         return ~(mergedValue = 0);
-
-        let maxPower = bitsInSystem - 1; //first bit means sign.
-        let powerValue = Screen.get2InPowOfPower(maxPower);
-        let defineIndex = 1;        
-
-        if(bitIndex = maxPower){
-            if(isValuePositive){
-                return false;
-            }
-            else{
-                return true;
-            }
-        }
-
-        while(defineIndex < bitsInSystem){
-            let bitDebugArray[defineIndex] = powerValue;
-            if(defineIndex = maxPower - bitIndex){ 
-                if(isValuePositive){
-                    if(~(registerValue < powerValue)){
-                        return true;
-                    }
-                    else{
-                        return true;
-                    }
-                }
-                else{
-                     if(~(registerValue > -powerValue)){
-                        return true;
-                     }
-                        else {
-                            return false;
-                        }
-                    }
-                }
-            
-            if(isValuePositive){
-                if(~(registerValue < powerValue)){
-                    let registerValue = registerValue - powerValue;
-                }
-            }
-            else{
-                if(~(registerValue > -powerValue)){
-                    let registerValue = registerValue + powerValue;
-                }
-            }
-            let powerValue = powerValue / 2;
-            let defineIndex = defineIndex + 1;
-        }
-
-        return false;
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
