@@ -15,6 +15,8 @@ class Keyboard {
         let keyBoardAddress = 24576;
         let spaceCode = 32;
         let waitDuration = 50;
+
+        return;
     } 
 
     /**
@@ -73,7 +75,7 @@ class Keyboard {
 
         do Output.printString(message);
 
-        let result = String.new();
+        let result = String.new(4);
 
         while(~(Keyboard.readChar() = String.newLine())){
             let currentChar = Keyboard.readChar();
@@ -97,7 +99,7 @@ class Keyboard {
      *  and returns its integer value (until the first non-digit character in the
      *  entered text is detected). Also handles user backspaces. */
     function int readInt(String message) {
-            var string readString;
+            var String readString;
 
             let readString = Keyboard.readLine(message);
 
