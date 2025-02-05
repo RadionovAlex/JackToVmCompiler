@@ -6,7 +6,6 @@
  * A library for handling user input from the keyboard.
  */
 class Keyboard {
-
     static int keyBoardAddress; 
     static int spaceCode;
     static int waitDuration;
@@ -59,7 +58,6 @@ class Keyboard {
         }
 
         if(detectedChar < 128){
-            do Output.moveCursor(0,0);
             do Output.printChar(detectedChar);
         }
 
@@ -72,12 +70,7 @@ class Keyboard {
     function String readLine(String message) {
         var String result;
         var char currentChar;
-        var int characterPosition;
 
-        let characterPosition = 0;
-        let characterPosition = characterPosition + message.length();
-
-        do Output.moveCursor(0,0);
         do Output.printString(message);
 
         let result = String.new();
@@ -107,7 +100,7 @@ class Keyboard {
             var string readString;
 
             let readString = Keyboard.readLine(message);
-            
+
             return readString.intValue();
     }
 }
