@@ -35,12 +35,9 @@ class Screen {
     function void initMasks(){
         var int index;
         var int curIndex;
-        var Array debugArray;
 
         let index = 0;
         let masks = Array.new(16);
-        let debugArray = 15000;
-        let debugArray[0] = masks;
 
         while(index < (bitsInSystem - 1)){
             let curIndex = index;
@@ -78,20 +75,6 @@ class Screen {
         return;
     }
 
-    function int GetBitValueTest(int x, int y){
-        var int registerAddress;
-        var int bitIndexInRegister;
-        var boolean currentBitValue;
-
-        let registerAddress = Screen.getRegisterAddress(x, y);
-        let bitIndexInRegister = Screen.getBitIndexInRegister(x);
-        
-        let currentBitValue = Screen.getBitValueInRegister(registerAddress, bitIndexInRegister);
-
-        return currentBitValue;
-
-    }
-
     /** Draws the (x,y) pixel, using the current color. */
     function void drawPixel(int x, int y) {
         var int registerAddress;
@@ -103,10 +86,8 @@ class Screen {
 
         let registerAddress = Screen.getRegisterAddress(x, y);
         let bitIndexInRegister = Screen.getBitIndexInRegister(x);
-        
         let currentBitValue = Screen.getBitValueInRegister(registerAddress, bitIndexInRegister);
         if(currentBitValue = color){
-            do Sys.error(5);
             return;
         }
 
@@ -177,12 +158,10 @@ class Screen {
         var boolean isValuePositive;
         var int maxPower;
         var int mergedValue;
-        var Array bitDebugArray;
         
         var int powerValue;
         var int defineIndex;
 
-        let bitDebugArray = 14000;
         let registerValue = screenMap[registerAddress];
         let isValuePositive = ~(registerValue < 0);
 
