@@ -14,7 +14,7 @@ class Keyboard {
     function void init() {
         let keyBoardAddress = 24576;
         let spaceCode = 32;
-        let waitDuration = 50;
+        let waitDuration = 1;
 
         return;
     } 
@@ -60,7 +60,9 @@ class Keyboard {
         }
 
         if(detectedChar < 128){
-            do Output.printChar(detectedChar);
+            if(~(detectedChar = 129)){
+                do Output.printChar(detectedChar);
+            }
         }
 
         return detectedChar;
@@ -73,20 +75,29 @@ class Keyboard {
         var String result;
         var char currentChar;
 
+        let currentChar = 0;
+
         do Output.printString(message);
 
-        let result = String.new(4);
+        let result = String.new(128);
 
-        while(~(Keyboard.readChar() = String.newLine())){
+        while(~(currentChar = String.newLine())){
             let currentChar = Keyboard.readChar();
 
-            if(currentChar = String.backSpace()){
-                do Output.backSpace();
-                do Output.printChar(spaceCode);
-                do Output.backSpace();
+            if(currentChar = String.backSpace())
+            {
+                if(result.length() > 0){
+                    do result.eraseLastChar();
+                    do Output.backSpace();
+                    do Output.printChar(spaceCode);
+                    do Output.backSpace();
+                }
             }
-            else{
-                do result.appendChar(currentChar);
+            else
+            {
+                if(~(currentChar = String.newLine())){
+                    do result.appendChar(currentChar);
+                }
             }
 
         }
