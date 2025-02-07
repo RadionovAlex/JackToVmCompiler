@@ -173,6 +173,101 @@ class Screen {
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
+        var Array debugArray;
+
+        var int xProgress;
+        var int yProgress;
+        var int adYMinusbdX;
+
+        var int dX;
+        var int dY;
+
+        var int xDy;
+        var int yDx;
+
+        var int stepX;
+        var int stepY;
+
+        let xProgress = 0;
+        let yProgress = 0;
+        let adYMinusbdX = 0;
+
+        let debugArray = 5000;
+
+        if(x1 < 0 | y1 < 0 | x2 < 0 | y2 < 0){
+            do Sys.error(40);
+            return;
+        }
+
+        if(~(x1 < width) | ~(x2 < width))
+        {
+            do Sys.error(41);
+            return;
+        }
+
+        if(~(y1 < height) | ~(y2 < height)){
+            do Sys.error(42);
+            return;
+        }
+
+        let dX = x2 - x1;
+        let dY = y2 - y1;
+        
+        let stepX = 0;
+        let stepY = -0;
+
+        if(dX < 0){
+            let stepX = -1;
+        }
+        if(dX > 0){
+            let stepX = 1;
+        }
+
+        if(dY < 0){
+            let stepY = -1;
+        }
+        if(dY > 0){
+            let stepY = 1;
+        }
+
+        while((~(xProgress = dX)) | (~(yProgress = dY)))
+        {   
+            let debugArray[0] = dX;
+            let debugArray[1] = xProgress;
+            let debugArray[2] = dY;
+            let debugArray[3] = yProgress;
+            do Screen.drawPixel(x1 + xProgress, y1 + yProgress);
+
+            let xDy = Math.abs(xProgress) * Math.abs(dY);
+            let yDx = Math.abs(yProgress) * Math.abs(dX);
+
+            if(xDy < yDx){
+                if(~(xProgress = dX))
+                {
+                    let xProgress = xProgress + stepX;
+                }
+            }
+            else {
+                if(yDx < xDy){
+                    if(~(yProgress = dY))
+                    {
+                        let yProgress = yProgress + stepY;
+                    }
+                    
+                }
+                else{
+                    if(~(xProgress = dX))
+                    {
+                        let xProgress = xProgress + stepX;
+                    }
+                    if(~(yProgress = dY))
+                    {
+                        let yProgress = yProgress + stepY;
+                    }
+                }
+            }
+        }
+
         return;
     }
 
